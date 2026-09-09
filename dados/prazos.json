@@ -1,0 +1,76 @@
+{
+  "dado": "prazos de antecedencia para providenciar documentos de viagem",
+  "consultado_em": "2026-08-28",
+  "nota": "Prazo com valor null NAO significa 'sem prazo': significa que ainda nao foi apurado. O prazos.py mostra esses itens no calendario como desconhecidos, em vez de omiti-los - documento esquecido e o unico erro desta lista que impede o embarque. O campo `requer` e o que o prazos.py le para filtrar; `condicao` e texto para humano. Separados de proposito: filtro que depende de prosa muda de comportamento quando alguem reescreve uma frase.",
+  "itens": [
+    {
+      "id": "vacina_febre_amarela",
+      "nome": "Vacina de febre amarela",
+      "prazo_dias": 10,
+      "verificado": true,
+      "fonte": "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2024/vai-viajar-e-precisa-do-certificado-internacional-de-vacinacao-fique-atento-as-orientacoes-da-anvisa",
+      "base": "Regulamento Sanitario Internacional (RSI/2005)",
+      "nota": "A validade do CIVP comeca 10 dias APOS a dose, e nao no dia da aplicacao. Nao e recomendacao, e regra internacional. Desde 11/07/2016 o certificado e vitalicio.",
+      "condicao": "quando o destino exigir CIVP",
+      "requer": "civp"
+    },
+    {
+      "id": "civp_emissao",
+      "nome": "Emissao do CIVP na ANVISA",
+      "prazo_dias": null,
+      "verificado": false,
+      "fonte": "https://www.gov.br/anvisa",
+      "nota": "Gratuito, presencial nos Centros de Orientacao para Saude do Viajante em portos, aeroportos e fronteiras. A fila varia por posto e nao ha prazo publicado - conferir no posto mais proximo.",
+      "condicao": "depois da vacina, quando o destino exigir CIVP",
+      "requer": "civp"
+    },
+    {
+      "id": "visto",
+      "nome": "Visto consular",
+      "prazo_dias": null,
+      "verificado": false,
+      "nota": "Varia de dias a meses conforme pais, tipo de visto e epoca do ano. Nao ha numero generico honesto. Consultar o consulado do destino e registrar o prazo real aqui, por destino.",
+      "condicao": "quando documentos-br apontar visto exigido",
+      "requer": "visto"
+    },
+    {
+      "id": "autorizacao_eletronica",
+      "nome": "Autorizacao eletronica (ETA, e-visa, ESTA)",
+      "prazo_dias": null,
+      "verificado": false,
+      "nota": "Costuma ser rapido, as vezes horas, mas pode cair em analise manual. Nao trate como same-day. Confirmar o prazo no site oficial do destino.",
+      "condicao": "quando documentos-br apontar eta ou e-visa",
+      "requer": "eta"
+    },
+    {
+      "id": "passaporte_emissao",
+      "nome": "Emissao ou renovacao de passaporte",
+      "prazo_dias": null,
+      "verificado": false,
+      "fonte": "https://www.gov.br/pf/pt-br/assuntos/passaporte",
+      "nota": "Prazo da Policia Federal varia com a demanda e com o agendamento, que costuma ser o gargalo real. NAO SE APLICA a esta viagem: os tres passaportes foram emitidos em 2025 e valem muito alem de 2028.",
+      "condicao": "sempre que o passaporte estiver vencido ou proximo do vencimento",
+      "requer": null
+    },
+    {
+      "id": "passaporte_validade_minima",
+      "nome": "Checar validade minima do passaporte",
+      "prazo_dias": null,
+      "verificado": false,
+      "nota": "Muitos paises exigem validade remanescente de 6 meses na data de ENTRADA, alguns exigem na data de SAIDA, e outros nao exigem nada. A regra e por destino - confirmar no consulado e registrar aqui.",
+      "condicao": "sempre",
+      "requer": null
+    },
+    {
+      "id": "seguro_viagem",
+      "nome": "Contratar seguro viagem",
+      "prazo_dias": 1,
+      "verificado": false,
+      "nota": "Contratacao e rapida, normalmente online no mesmo dia. O prazo 1 e operacional, nao regulatorio. O que exige antecedencia e descobrir a cobertura minima exigida pelo destino - ver dados/seguro.json.",
+      "condicao": "sempre que o destino exigir, e recomendavel mesmo quando nao exige",
+      "requer": null
+    }
+  ],
+  "verificado": false,
+  "pendencia": "Apenas o prazo da febre amarela foi conferido em fonte primaria. Os demais estao com prazo_dias null e instrucao de onde apurar."
+}

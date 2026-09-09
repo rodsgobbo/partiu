@@ -1,0 +1,86 @@
+{
+  "dado": "cuidados e meios de pagamento para turista brasileiro na China",
+  "verificado": true,
+  "consultado_em": "2026-08-28",
+  "pagamentos": {
+    "realidade": "A China e praticamente sem dinheiro fisico. Alipay e WeChat Pay dominam ate barraca de rua. Cartao internacional fisico funciona em hotel bom, restaurante turistico e loja grande; nao funciona na maior parte do comercio pequeno.",
+    "solucao": "Instalar Alipay ou WeChat Pay AINDA NO BRASIL e vincular o cartao internacional. Desde 2026 os dois aceitam Visa, Mastercard, Amex, Discover e JCB.",
+    "taxa_cross_border": {
+      "regra": "3% sobre transacao internacional no app",
+      "isencao": "Compras abaixo de CNY 200 isentas da taxa",
+      "valido_ate": "2026-12-31",
+      "alerta": "A isencao foi anunciada para o ANO DE 2026. A viagem e em setembro de 2027 - nao ha garantia de que continue. Reconferir antes de viajar.",
+      "verificado": true
+    },
+    "dinheiro_vivo": {
+      "regra": "Regulamentacao chinesa em vigor desde fevereiro de 2026 proibe comerciante de recusar dinheiro onde o pagamento em especie for razoavel",
+      "nota": "Na pratica, muitos lugares relutam. Levar algum yuan em especie como reserva, nao como meio principal."
+    },
+    "atencao_iof": "Pagamento pelo app com cartao internacional continua sendo operacao de cambio: leva IOF de 3,5% igual a compra no cartao. Ver dados/iof.json.",
+    "app": {
+      "recomendacao": "Instalar OS DOIS: Alipay e WeChat Pay. O Alipay e mais facil de configurar para estrangeiro; o WeChat Pay e aceito em mais lugares e tem base de usuarios maior na China.",
+      "metodo": "Vincular o cartao internacional direto (Me > Bank Cards no Alipay). Desde o fim de 2023 nao precisa de conta bancaria chinesa nem de cartao pre-pago.",
+      "tour_pass_prepago": "Em descontinuacao. O do WeChat ja parou e o do Alipay fechou para novos pedidos. Nao e mais o caminho.",
+      "verificacao": "Foto do passaporte + reconhecimento facial. Cerca de 10 minutos, 98% automatizado.",
+      "limites": {
+        "por_transacao_cny": 5000,
+        "anual_por_pessoa_cny": 50000,
+        "nota": "Duas contas de adulto dao CNY 100.000 de teto. O gasto previsto ocupa cerca de 24%."
+      },
+      "taxa": {
+        "abaixo_de_200_cny": "0%",
+        "acima": "3%",
+        "ver": "isencao com prazo, campo taxa_cross_border"
+      },
+      "seguranca": "Protegido por PIN de 6 digitos e Face ID, com protocolos padrao internacionais. Vale usar cartao com boa protecao a fraude e acompanhar a fatura, como em qualquer viagem.",
+      "falha_mais_comum": "Divergencia de nome entre o cartao e o passaporte. Nome brasileiro longo costuma vir abreviado no cartao - conferir ANTES de viajar, com tempo de pedir 2a via.",
+      "antes_de_viajar": "Avisar o banco que havera compras na China, para o cartao nao ser bloqueado por suspeita de fraude.",
+      "verificado": true,
+      "consultado_em": "2026-08-28"
+    }
+  },
+  "golpes": [
+    {
+      "nome": "Casa de cha",
+      "como": "Jovens simpaticos, bem vestidos, com ingles muito bom abordam turista em ponto turistico dizendo que querem praticar ingles. Convidam para um cha. A conta chega com valor absurdo, na casa de US$ 100 por xicara.",
+      "onde": "principais pontos turisticos"
+    },
+    {
+      "nome": "Estudante de arte",
+      "como": "Mesma abordagem, mas o convite e para ver uma exposicao ali perto. La dentro, pressao para comprar uma obra superfaturada.",
+      "onde": "principais pontos turisticos"
+    },
+    {
+      "nome": "Onibus para a Muralha",
+      "como": "Onibus nao oficiais que prometem levar a Muralha e desviam para lojas, ou levam a trecho diferente do combinado.",
+      "fonte": "Wikivoyage Pequim"
+    },
+    {
+      "nome": "Taxi de aeroporto",
+      "como": "Abordagem dentro do terminal. Usar so a fila oficial de taxi ou app."
+    }
+  ],
+  "sinal_de_alerta": "O padrao dos dois primeiros golpes e sempre o mesmo: abordagem em ingles muito bom, pessoa muito simpatica, quase sempre pedindo foto com voce, num ponto turistico. Convite para ir a um lugar fechado nunca vem de quem so quer praticar idioma.",
+  "praticos": [
+    "Levar o endereco do hotel escrito em CHINES, impresso. Taxista nao le alfabeto latino.",
+    "Passaporte e obrigatorio para comprar bilhete de trem e passar na revista do metro.",
+    "Hotel registra o hospede na policia automaticamente. Hospedagem informal pode nao registrar, o que gera problema."
+  ],
+  "emergencia": {
+    "plantao_consular_itamaraty": "+55 61 98260-0610",
+    "embaixada_pequim": "+86 10 6532 2881",
+    "plantao_pequim": "+86 138 0121 0722",
+    "consulado_xangai": "+86 131 6623 1312",
+    "wechat_xangai": "consuladoxangai",
+    "fonte": "Portal Consular do Itamaraty e paginas das reparticoes"
+  },
+  "fontes": [
+    "https://www.gov.br/mre/pt-br/assuntos/portal-consular/reparticoes-consulares-do-brasil/regiao/china/china",
+    "https://www.gov.br/mre/pt-br/consulado-xangai",
+    "https://www.estrangeira.com.br/golpes-na-china/",
+    "https://precisoviajar.com/golpes-comuns-na-china/",
+    "https://realchinatrip.com/blogs/payments-apps/how-to-use-alipay-and-wechat-pay-for-foreigners-setup-limits-comparison-table",
+    "https://ltl-school.com/alipay-for-foreigners/"
+  ],
+  "reconferir_em": "2027-06-01"
+}

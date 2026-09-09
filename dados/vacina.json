@@ -1,0 +1,17 @@
+{
+  "dado": "exigencia de vacina e CIVP por destino, viajante saindo do Brasil",
+  "verificado": false,
+  "pendencia": "Nao preenchido. Nao existe dataset publico confiavel (procurei no GitHub: zero repos). Preencher sob demanda, por destino, consultando ANVISA (emissao do CIVP) e o site oficial de saude do pais de destino, e registrar a data da consulta em cada entrada.",
+  "por_destino": {},
+  "modelo_de_entrada": {
+    "XX": {
+      "exige_civp": null,
+      "vacinas": [],
+      "prazo_antes_da_viagem": null,
+      "fonte": "",
+      "consultado_em": ""
+    }
+  },
+  "nota": "Febre amarela e o caso mais comum: alguns paises exigem CIVP de quem vem do Brasil, e a vacina precisa de 10 dias de antecedencia para o certificado valer.",
+  "consultado_em": null
+}

@@ -1,0 +1,18 @@
+{
+  "dado": "exigencia de seguro viagem e cobertura minima por destino",
+  "verificado": false,
+  "por_destino": {},
+  "modelo_de_entrada": {
+    "XX": {
+      "obrigatorio": null,
+      "cobertura_minima": null,
+      "moeda": null,
+      "base_legal": "",
+      "fonte": "",
+      "consultado_em": ""
+    }
+  },
+  "nota": "O caso mais citado e o Espaco Schengen, que costuma exigir cobertura minima de EUR 30.000. Confirmar na fonte oficial antes de afirmar.",
+  "consultado_em": null,
+  "pendencia": "Nao preenchido. Zero repos publicos com esse dado. Preencher por destino consultando a fonte oficial do bloco/pais e registrar data."
+}

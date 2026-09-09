@@ -1,0 +1,22 @@
+{
+  "dado": "ressalvas por destino que o dataset de vistos nao modela",
+  "verificado": true,
+  "consultado_em": "2026-08-28",
+  "motivo": "O passport-index diz apenas o estado ATUAL (ex: CN = 30 dias sem visto). Ele nao tem campo de validade, entao uma politica temporaria aparece como se fosse permanente. Para viagem futura isso e a diferenca entre embarcar e nao embarcar.",
+  "por_destino": {
+    "CN": {
+      "regra": "isencao unilateral de visto, ate 30 dias",
+      "valido_ate": "2026-12-31",
+      "finalidades": "negocios, turismo, visita a familiares ou amigos, intercambios e transito",
+      "fonte": "https://br.china-embassy.gov.cn/por/lqfw/lqfw2/202601/t20260106_11807321.htm",
+      "orgao": "Embaixada da Republica Popular da China no Brasil",
+      "consultado_em": "2026-08-28",
+      "historico": [
+        "Valia originalmente ate maio/2026",
+        "Prorrogada para 31/12/2026 pelo aviso de 06/01/2026"
+      ],
+      "alerta": "O aviso NAO menciona 2027. Ja foi prorrogada duas vezes, entao nova prorrogacao e plausivel, mas hoje nao existe. Viagem a partir de 01/01/2027 precisa de visto ate que a China anuncie extensao.",
+      "reconferir_em": "2026-11-01"
+    }
+  }
+}

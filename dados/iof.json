@@ -1,0 +1,50 @@
+{
+  "dado": "aliquotas de IOF sobre operacoes de cambio, pessoa fisica",
+  "verificado": true,
+  "consultado_em": "2026-08-28",
+  "fonte_primaria": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2007/decreto/d6306.htm",
+  "norma": "Decreto 6.306/2007, Art. 15-B, com redacao do Decreto 12.499/2025",
+  "aliquotas": {
+    "cartao_credito_internacional": {
+      "valor": 0.035, "verificado": true, "inciso": "VII",
+      "texto": "operacoes de cambio destinadas ao cumprimento de obrigacoes de administradoras de cartao de credito ou de debito decorrentes de aquisicao de bens e servicos do exterior efetuada por seus usuarios"
+    },
+    "cartao_debito_internacional": {
+      "valor": 0.035, "verificado": true, "inciso": "VII",
+      "texto": "mesmo inciso do cartao de credito"
+    },
+    "saque_no_exterior": {
+      "valor": 0.035, "verificado": true, "inciso": "IX",
+      "texto": "saques no exterior efetuados por usuarios de cartao de uso internacional"
+    },
+    "cartao_pre_pago": {
+      "valor": 0.035, "verificado": true, "inciso": "X",
+      "texto": "aquisicao de moeda estrangeira em cheques de viagens e carregamento de cartao internacional pre-pago, para gastos pessoais em viagens internacionais"
+    },
+    "moeda_especie": {
+      "valor": 0.035, "verificado": true, "inciso": "XX",
+      "texto": "liquidacoes de operacoes de cambio para aquisicao de moeda estrangeira, em especie",
+      "nota": "Era 1,10% pelo Decreto 8.731/2016. Blogs e casas de cambio ainda repetem 1,10% porque o Congresso restabeleceu esse valor por pouco tempo via DL 176/2025, antes do STF derrubar. Nao use 1,10%."
+    },
+    "conta_global_transferencia": {
+      "valor": 0.035, "verificado": true, "inciso": "XXIV",
+      "texto": "demais operacoes de cambio realizadas para transferencia de recursos ao exterior, nao isentas e nao abarcadas nos incisos I a XXIII"
+    }
+  },
+  "historico": [
+    {"data": "2016-05-03", "evento": "Decreto 8.731/2016 fixa especie em 1,10%; cartao e pre-pago em 6,38%"},
+    {"data": "2025-06-11", "evento": "Decretos 12.466 e 12.499/2025 unificam as operacoes de cambio de pessoa fisica em 3,5%"},
+    {"data": "2025-06", "evento": "Decreto Legislativo 176/2025: Congresso susta os decretos e restabelece 6,38% / 1,10%"},
+    {"data": "2025-07-16", "evento": "STF, cautelar de Alexandre de Moraes em ADC 96 + ADI 7827 e 7839, restabelece o Decreto 12.499/2025 com efeitos desde 11/06/2025. Excecao: risco sacado, irrelevante para cambio pessoal"}
+  ],
+  "status_juridico": {
+    "estavel": false,
+    "motivo": "A decisao de 16/07/2025 e CAUTELAR, monocratica. O Plenario do STF ainda vai referendar, em data nao definida. Se o Plenario divergir, as aliquotas mudam e este arquivo fica errado.",
+    "reconferir_em": "2026-11-28",
+    "onde_conferir": "https://noticias.stf.jus.br e a pagina do Decreto 6.306 no Planalto, que mostra as camadas de alteracao"
+  },
+  "fontes_secundarias_consultadas": [
+    "https://noticias.stf.jus.br/postsnoticias/stf-restabelece-parcialmente-decreto-que-eleva-aliquotas-do-iof/",
+    "https://www.demarest.com.br/majoracao-do-iof-stf-publica-decisao-cautelar-restabelecendo-a-eficacia-do-decreto-no-12-499-2025/"
+  ]
+}

@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Ambiente e segredos
+.env
+.mcp.json
+.claude/settings.local.json
+
+# Viagens reais: dado pessoal, fica so no disco.
+# O exemplo publico e viagens/exemplo-*.json.
+viagens/*.json
+!viagens/exemplo-*.json
+
+# Roteiros gerados (saida do ferramentas/gerar.py)
+roteiro-*.html
+dados_roteiro.json

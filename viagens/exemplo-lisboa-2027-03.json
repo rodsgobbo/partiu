@@ -1,0 +1,29 @@
+{
+  "destino": {"cidade": "Lisboa", "pais": "PT"},
+  "datas": {"ida": "2027-03-10", "volta": "2027-03-20"},
+  "viajantes": 2,
+  "moeda_local": "EUR",
+  "meio_pagamento": "cartao_credito",
+  "spread": null,
+  "custos": [
+    {"item": "Passagem aerea ida e volta", "valor": 4200.00, "moeda": "BRL",
+     "por_pessoa": true, "fonte": "trvl search_flights", "consultado_em": "2026-08-28"},
+    {"item": "Bagagem despachada", "valor": 60.00, "moeda": "EUR",
+     "por_pessoa": true, "fonte": "trvl get_baggage_rules", "consultado_em": "2026-08-28"},
+    {"item": "Hospedagem, 10 noites, taxas inclusas", "valor": 1150.00, "moeda": "EUR",
+     "por_pessoa": false, "fonte": "trvl search_hotels_with_details", "consultado_em": "2026-08-28"},
+    {"item": "Passeios e alimentacao", "valor": 700.00, "moeda": "EUR",
+     "por_pessoa": true, "fonte": "roteiro-orcamento", "consultado_em": "2026-08-28"}
+  ],
+  "documentos": {
+    "visto": "sem visto, ate 90 dias",
+    "fonte_visto": "passport-index, dado de 2026-03-01",
+    "civp_exigido": false,
+    "seguro_obrigatorio": null,
+    "consultado_em": "2026-08-28"
+  },
+  "decisoes": [
+    "Marco em vez de julho: o trvl mostrou tarifa bem menor fora da alta temporada.",
+    "Passagem em BRL numa agencia daqui, entao nao entra IOF de cambio nessa linha."
+  ]
+}

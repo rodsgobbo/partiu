@@ -1,0 +1,12 @@
+{
+  "dado": "exigencia de visto por destino, passaporte brasileiro",
+  "fonte": "https://github.com/imorte/passport-index-data",
+  "licenca": "MIT",
+  "commit": "9c59780",
+  "data_do_dado": "2026-03-01",
+  "verificado": true,
+  "confianca": "media",
+  "ressalva": "Raspado do Passport Index, site comercial. Nao e fonte oficial. Sempre confirmar no consulado antes de comprar passagem.",
+  "como_atualizar": "python dados/passport-index/atualizar.py",
+  "consultado_em": "2026-08-28"
+}
