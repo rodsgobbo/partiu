@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Textos da pagina, com acentuacao correta. Separados do gerador porque quem
-vai reler e ajustar isso e a familia, nao o codigo."""
+vai reler e ajustar isso e quem viaja, nao o codigo.
+
+Conteudo de exemplo: um roteiro de 20 dias pela China, que serve de modelo para
+escrever o seu. O gerador nao le nada daqui alem desta estrutura."""
 
 DIAS = [
  ("voo", "Voo para a China",
@@ -61,7 +64,7 @@ ANTES_INTRO = ("Três coisas precisam ser resolvidas <strong>aqui no Brasil</str
                "são difíceis ou impossíveis de resolver depois que o avião pousa.")
 
 ANTES = [
- ("O eSIM da Maya", "R$ 537 · 3 celulares",
+ ("O eSIM da Maya", "{preco} · {linhas} celulares",
   ["Na China, o Google, o WhatsApp, o Instagram e o <strong>Google Maps</strong> são bloqueados. "
    "Um chip chinês comum não resolve, porque passa pelo mesmo bloqueio.",
    "O eSIM é um chip digital instalado pelo aplicativo, e a internet dele sai por fora da China. "
@@ -135,9 +138,9 @@ EMERGENCIA = [("Plantão do Itamaraty, 24h", "+55 61 98260-0610"),
 CONTAS_INTRO = ("Cada valor é para as <strong>três pessoas juntas</strong>, já convertido "
                 "para reais com a cotação oficial do Banco Central e com o IOF incluído.")
 
-AVISO_FALTA = ("As passagens de avião e as dezessete noites de hotel não entram na conta "
-               "acima porque os preços de setembro de 2027 ainda não existem: as companhias "
-               "só abrem a venda por volta de outubro de 2026. Com a viagem inteira, a "
+AVISO_FALTA = ("As passagens de avião e as noites de hotel não entram na conta acima "
+               "porque, com a viagem ainda longe, esses preços não existem: as companhias "
+               "só abrem a venda cerca de onze meses antes. Com a viagem inteira, a "
                "estimativa fica entre R$ 48 mil e R$ 57 mil.")
 
 AVISO_VISTO = ("Brasileiro entra na China sem visto, mas essa regra vale até 31 de dezembro "

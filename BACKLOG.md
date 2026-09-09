@@ -36,11 +36,12 @@ So para ver se disparam e se os caminhos relativos dos scripts resolvem quando
 quem chama e o Claude, nao o terminal. **Pronto quando:** cada uma foi invocada ao
 menos uma vez sem erro de caminho.
 
-### 0.4 · Viagem real: China, 2027, 20 dias, 3 pessoas · M · **EM ANDAMENTO**
-Primeiro uso real, e ele ja pagou o projeto inteiro no passo 1.
+### 0.4 · Primeira viagem real de ponta a ponta · M · **EM ANDAMENTO**
+O primeiro uso de verdade ja pagou o projeto inteiro no passo 1. O caso que
+rodou foi um destino na China, e os achados abaixo saem dele.
 
-**Achado critico:** o dataset dizia `CN: 30` (sem visto) e teria mandado a familia
-planejar 2027 sem visto. A isencao e **unilateral e temporaria** — vale ate
+**Achado critico:** o dataset dizia `CN: 30` (sem visto) e teria mandado planejar
+uma viagem futura sem visto. A isencao e **unilateral e temporaria** — vale ate
 **31/12/2026**, confirmado na Embaixada da China no Brasil. O passport-index nao
 tem campo de validade, entao politica temporaria aparece com cara de permanente.
 Resposta do projeto: `dados/visto-ressalvas.json`, um arquivo de ressalvas por
@@ -54,8 +55,9 @@ profundidade e avisa 45 dias antes de vencer.
 **Terceiro:** `search_dates` do trvl devolve `success: true, count: 0` quando o
 backend cai — indistinguivel de "nao ha voo". Registrado na skill `viagem`.
 
-Pendente: tarifas de 2027 nao estao disponiveis (horizonte de venda e backend
-instavel), entao o custo consolidado fica para quando a data estiver definida.
+Pendente: com a viagem longe, a tarifa ainda nao esta a venda (horizonte de venda
+e backend instavel), entao o custo consolidado fica para quando a data estiver
+definida.
 
 ## Marco 1 — `cambio-br` confiavel
 
@@ -230,8 +232,9 @@ alarmes disparam.
   com quem ja faz. Delegado ao trvl e ao toolkit.
 - **Skill de mala.** O trvl ja tem `packing-list`, `get_weather` e
   `get_baggage_rules`. Estava no plano ate a verificacao mostrar que era redundante.
-- **Publicar como open source.** Decisao tomada: uso pessoal. Muda a licenca do
-  trvl de "ok" para "proibido", entao nao e so uma questao de vontade.
+- **Empacotar o trvl junto.** O trvl e PolyForm Noncommercial, uso pessoal apenas.
+  Ele fica como dependencia opcional, instalada por quem quiser: a licenca dele
+  vincula o uso do trvl, nao este repositorio, que e MIT.
 
 ---
 

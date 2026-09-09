@@ -26,7 +26,7 @@ Requer **Python 3.9+**. Fora o `pytest` (so para rodar os testes), tudo e
 biblioteca padrao — nao ha `requirements.txt` porque nao ha o que instalar.
 
 ```bash
-git clone <este-repo> partiu
+git clone https://github.com/rodsgobbo/partiu.git
 cd partiu
 cp .mcp.json.example .mcp.json     # so se for usar o trvl
 ```

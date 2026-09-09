@@ -9,7 +9,7 @@
       "regra": "3% sobre transacao internacional no app",
       "isencao": "Compras abaixo de CNY 200 isentas da taxa",
       "valido_ate": "2026-12-31",
-      "alerta": "A isencao foi anunciada para o ANO DE 2026. A viagem e em setembro de 2027 - nao ha garantia de que continue. Reconferir antes de viajar.",
+      "alerta": "A isencao foi anunciada para o ANO DE 2026. Para viagem em 2027 ou depois nao ha garantia de que continue. Reconferir antes de viajar.",
       "verificado": true
     },
     "dinheiro_vivo": {

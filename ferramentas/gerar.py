@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Gera o roteiro em HTML para a familia, com custos calculados de verdade."""
+"""Gera o roteiro em HTML para levar na viagem, com custos calculados de verdade.
+
+O roteiro de exemplo vive no textos.py; as datas e o numero de viajantes ficam
+no bloco "Sua viagem", logo abaixo dos imports."""
 import html
 import importlib.util
 import sys
@@ -20,8 +23,16 @@ IOF = cb.iof()["aliquotas"]["cartao_credito_internacional"]["valor"]
 brl = lambda y: round(cb.em_reais(y, TAXA, 0.04, IOF))
 fmt = lambda v: f"{v:,}".replace(",", ".")
 
+# --- Sua viagem -------------------------------------------------------------
+# Valores de exemplo. Troque pelos seus: sao os unicos dados de viagem que o
+# gerador precisa, o resto do roteiro vem do textos.py.
+INICIO = date(2028, 9, 20)   # primeiro dia; os demais saem em sequencia
+VIAJANTES = 2                # quantas pessoas vao
+# ----------------------------------------------------------------------------
+
 # eSIM: cobrado em dolar, no cartao, entao leva IOF como qualquer compra externa.
-ESIM_USD_POR_LINHA, ESIM_LINHAS = 32, 3
+# Uma linha por viajante.
+ESIM_USD_POR_LINHA, ESIM_LINHAS = 32, VIAJANTES
 usd, _ = cb.ptax("USD")
 ESIM_BRL = round(cb.em_reais(ESIM_USD_POR_LINHA * ESIM_LINHAS, usd, 0.04, IOF))
 
@@ -32,7 +43,6 @@ SELOS = {"destaque": '<span class="selo estrela">imperdível</span>',
          "trem": '<span class="selo meio">trem-bala</span>',
          "voo": '<span class="selo meio">voo</span>'}
 
-inicio = date(2027, 9, 10)
 blocos, cidade_atual = [], None
 for i, (cidade, titulo, texto, cny, tag) in enumerate(T.DIAS):
     if cidade != cidade_atual and cidade != "voo":
@@ -45,7 +55,7 @@ for i, (cidade, titulo, texto, cny, tag) in enumerate(T.DIAS):
             f'  <h2>{html.escape(cidade)}</h2>\n'
             f'  <p class="sub">{html.escape(T.SUBTITULO[cidade])} &middot; {n} dias</p>\n'
             '</section>')
-    dia = inicio + timedelta(days=i)
+    dia = INICIO + timedelta(days=i)
     classe = f' {tag}' if tag in ("destaque", "opcional") else ""
     custo = ('<span class="livre">sem custo</span>' if cny == 0 else
              f'<span class="brl">R$ {fmt(brl(cny))}</span>'
@@ -63,8 +73,9 @@ for i, (cidade, titulo, texto, cny, tag) in enumerate(T.DIAS):
 
 antes_blocos = "\n  ".join(
     '<div class="check">\n'
-    # o preco do eSIM vem do calculo, nunca do texto: cambio muda e o texto nao sabe
-    f'    <h3>{titulo} <span class="preco">{preco.replace("R$ 537", f"R$ {fmt(ESIM_BRL)}")}</span></h3>\n'
+    # preco e numero de linhas vem do calculo, nunca do texto: cambio muda,
+    # numero de viajantes muda, e o texto nao sabe de nenhum dos dois
+    f'    <h3>{titulo} <span class="preco">{preco.format(preco=f"R$ {fmt(ESIM_BRL)}", linhas=ESIM_LINHAS)}</span></h3>\n'
     + "\n".join(f'    <p>{par}</p>' for par in paragrafos) + '\n'
     '  </div>'
     for titulo, preco, paragrafos in T.ANTES)
@@ -75,6 +86,16 @@ golpes_blocos = "\n    ".join(
 praticos_itens = "\n      ".join(f'<li>{p}</li>' for p in T.PRATICOS)
 emergencia_linhas = "\n      ".join(
     f'<tr><td>{n}</td><td class="v tel">{t}</td></tr>' for n, t in T.EMERGENCIA)
+
+MESES = ("janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho",
+         "agosto", "setembro", "outubro", "novembro", "dezembro")
+DIAS_TOTAL = len(T.DIAS)
+FIM = INICIO + timedelta(days=DIAS_TOTAL - 1)
+CIDADES_TOTAL = len({c for c, *_ in T.DIAS if c != "voo"})
+periodo = (f"{INICIO.day} a {FIM.day} de {MESES[FIM.month - 1]} de {FIM.year}"
+           if (INICIO.month, INICIO.year) == (FIM.month, FIM.year) else
+           f"{INICIO.day} de {MESES[INICIO.month - 1]} a "
+           f"{FIM.day} de {MESES[FIM.month - 1]} de {FIM.year}")
 
 passeios_cny = sum(d[3] for d in T.DIAS)
 transporte_cny = sum(v for _, v in T.EXTRAS)
@@ -199,13 +220,13 @@ pagina = f"""<title>Vinte Dias na China</title>
 
 <div class="envelope">
 <header class="capa">
-  <span class="olho">10 a 29 de setembro de 2027</span>
+  <span class="olho">{periodo}</span>
   <h1>Vinte dias<br>na <em>China</em></h1>
   <p class="linha-fina">{T.CAPA_LINHA}</p>
   <dl class="fatos">
-    <div class="fato"><dt>Quem vai</dt><dd>3 pessoas</dd></div>
-    <div class="fato"><dt>Cidades</dt><dd>4</dd></div>
-    <div class="fato"><dt>Dias</dt><dd>20</dd></div>
+    <div class="fato"><dt>Quem vai</dt><dd>{VIAJANTES} pessoas</dd></div>
+    <div class="fato"><dt>Cidades</dt><dd>{CIDADES_TOTAL}</dd></div>
+    <div class="fato"><dt>Dias</dt><dd>{DIAS_TOTAL}</dd></div>
     <div class="fato"><dt>Passeios e comida</dt><dd>R$ {fmt(brl(passeios_cny))}</dd></div>
   </dl>
 </header>
@@ -227,9 +248,9 @@ pagina = f"""<title>Vinte Dias na China</title>
   <table>
     <thead><tr><th>Item</th><th class="v">Em yuan</th><th class="v">Em reais</th></tr></thead>
     <tbody>
-      <tr><td>Passeios, entradas e alimentação, 20 dias</td><td class="v">&yen; {fmt(passeios_cny)}</td><td class="v">R$ {fmt(brl(passeios_cny))}</td></tr>
+      <tr><td>Passeios, entradas e alimentação, {DIAS_TOTAL} dias</td><td class="v">&yen; {fmt(passeios_cny)}</td><td class="v">R$ {fmt(brl(passeios_cny))}</td></tr>
       {linhas_extras}
-      <tr><td>eSIM Maya, 3 celulares (cobrado em dólar)</td><td class="v">&mdash;</td><td class="v">R$ {fmt(ESIM_BRL)}</td></tr>
+      <tr><td>eSIM Maya, {ESIM_LINHAS} celulares (cobrado em dólar)</td><td class="v">&mdash;</td><td class="v">R$ {fmt(ESIM_BRL)}</td></tr>
     </tbody>
     <tfoot><tr><td>Total já calculado</td><td class="v">&yen; {fmt(passeios_cny + transporte_cny)}</td><td class="v">R$ {fmt(total_brl)}</td></tr></tfoot>
   </table>
