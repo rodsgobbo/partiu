@@ -6,9 +6,6 @@ ao [travel-hacking-toolkit](https://github.com/borski/travel-hacking-toolkit) �
 resolve o que nenhum dos dois cobre: **custo em reais e documento para passaporte
 brasileiro**.
 
-Nasceu de sete prompts de planejamento de viagem publicados pelo @myhub.ia. Quatro
-deles ja eram bem atendidos por projetos existentes. Os outros tres viraram as
-skills daqui.
 
 ## Skills
 
@@ -43,7 +40,8 @@ python .claude/skills/documentos-br/scripts/prazos.py 2027-01-15 --exige-visto
 python .claude/skills/viagem/scripts/consolidar.py viagens/exemplo-lisboa-2027-03.json
 python dados/passport-index/atualizar.py      # mostra o que mudou desde a ultima vez
 python saude.py                               # o que envelheceu, o que vence
-python -m pytest tests/ -q                    # 57 testes
+python conferir.py                            # o que o arquivo de viagem contradiz
+python -m pytest tests/ -q                    # 122 testes
 ```
 
 `cambio.py` e `atualizar.py` batem em rede (PTAX do Banco Central e o dataset do
@@ -65,7 +63,15 @@ para isso subir junto com o codigo. O formato esta em
 um arquivo completo.
 
 `roteiro-*.html` e `dados_roteiro.json`, saidas do `ferramentas/gerar.py`, tambem
-sao ignorados: sao documento de viagem, nao codigo.
+sao ignorados: sao documento de viagem, nao codigo. `decisoes-*.html` idem — sao
+paginas de decisao, com orcamento e prazos de quem viaja dentro.
+
+O formato foi corrigido em 09/09/2026 pela primeira viagem real, como o proprio
+esquema previa. A licao mais cara: o orcamento estava fora de `custos[]`, o
+`consolidar.py` somou a lista vazia e imprimiu **TOTAL R$ 0,00 com codigo de saida
+0**. Hoje `custos` vazio e erro, e linha com `valor: null` significa "conhecida,
+ainda sem preco" — ela aparece em secao propria e o total passa a se chamar
+PARCIAL. Numero errado que sai calado e pior que erro.
 
 ## Dependencias externas
 
@@ -85,7 +91,12 @@ Rascunho honesto. O que **nao** esta pronto:
   preenchem sob demanda, por destino, com fonte e data.
 - Prazos de visto, passaporte e CIVP nao apurados. Aparecem no calendario como
   desconhecidos, de proposito, em vez de sumir.
-- O esquema de `viagens/` e provisorio: foi escrito antes da primeira viagem real.
+- A fonte de visto **congelou**. O `passport-index` nao e atualizado desde
+  01/03/2026, e o repositorio canonico da categoria esta ainda mais atrasado —
+  nao ha dataset gratuito de visto sendo mantido. A confianca do dado caiu para
+  `baixa`: ele serve de triagem para varrer 199 destinos, nunca para decidir uma
+  compra. Para um destino especifico, o que vale e o consulado, registrado em
+  `dados/visto-ressalvas.json`.
 - Spread do banco ainda e o padrao chutado do script. Como o IOF ficou igual nos
   tres meios de pagamento desde 2025, e o spread que decide — entao esse chute e
   hoje a maior fonte de erro do total.

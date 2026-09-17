@@ -20,6 +20,12 @@ def commit_atual():
         return "desconhecido", "desconhecido"
 
 
+def descongelou(fonte, sha):
+    """A fonte parada voltou a andar? Fora do main() para poder ser testada sem
+    rede: e uma decisao de uma linha que, errada, silencia um alerta para sempre."""
+    return "fonte_congelada" in fonte and sha != fonte.get("commit")
+
+
 def main():
     with urllib.request.urlopen(RAW, timeout=60) as r:
         linhas = list(csv.reader(io.StringIO(r.read().decode("utf-8"))))
@@ -56,8 +62,20 @@ def main():
         print("AVISO: dados baixados, mas a procedencia nao pode ser confirmada.")
         print("       FONTE.json ficou com verificado=false de proposito.")
     else:
+        # `fonte_congelada` justifica calar o alerta de fonte velha, e a
+        # justificativa morre no instante em que a fonte anda. Deixar o bloco
+        # para tras silenciaria o alerta para sempre com um motivo que deixou de
+        # valer - o mesmo modo de falha da procedencia envenenada, so que mais
+        # dificil de ver, porque o arquivo estaria dizendo a verdade sobre tudo
+        # menos sobre o que importa.
+        voltou = descongelou(fonte, sha)
         fonte.update({"commit": sha, "data_do_dado": data_dado, "verificado": True})
         fonte.pop("ressalva_atualizacao", None)
+        if voltou:
+            fonte.pop("fonte_congelada")
+            print("\nA FONTE voltou a andar: bloco fonte_congelada removido.")
+            print("Reveja 'confianca' e 'ressalva' - foram rebaixadas enquanto ela")
+            print("estava parada, e ninguem mais vai lembrar disso.")
     (AQUI / "FONTE.json").write_text(
         json.dumps(fonte, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 

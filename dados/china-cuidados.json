@@ -1,16 +1,23 @@
 {
   "dado": "cuidados e meios de pagamento para turista brasileiro na China",
+  "pais": "CN",
   "verificado": true,
   "consultado_em": "2026-08-28",
   "pagamentos": {
     "realidade": "A China e praticamente sem dinheiro fisico. Alipay e WeChat Pay dominam ate barraca de rua. Cartao internacional fisico funciona em hotel bom, restaurante turistico e loja grande; nao funciona na maior parte do comercio pequeno.",
     "solucao": "Instalar Alipay ou WeChat Pay AINDA NO BRASIL e vincular o cartao internacional. Desde 2026 os dois aceitam Visa, Mastercard, Amex, Discover e JCB.",
     "taxa_cross_border": {
+      "valor": 0.03,
       "regra": "3% sobre transacao internacional no app",
-      "isencao": "Compras abaixo de CNY 200 isentas da taxa",
-      "valido_ate": "2026-12-31",
+      "isencao": {
+        "abaixo_de": 200,
+        "moeda": "CNY",
+        "valido_ate": "2026-12-31",
+        "regra": "Compras abaixo de CNY 200 isentas da taxa"
+      },
       "alerta": "A isencao foi anunciada para o ANO DE 2026. Para viagem em 2027 ou depois nao ha garantia de que continue. Reconferir antes de viajar.",
-      "verificado": true
+      "verificado": true,
+      "consultado_em": "2026-08-28"
     },
     "dinheiro_vivo": {
       "regra": "Regulamentacao chinesa em vigor desde fevereiro de 2026 proibe comerciante de recusar dinheiro onde o pagamento em especie for razoavel",
@@ -27,11 +34,7 @@
         "anual_por_pessoa_cny": 50000,
         "nota": "Duas contas de adulto dao CNY 100.000 de teto. O gasto previsto ocupa cerca de 24%."
       },
-      "taxa": {
-        "abaixo_de_200_cny": "0%",
-        "acima": "3%",
-        "ver": "isencao com prazo, campo taxa_cross_border"
-      },
+      "taxa": "Ver pagamentos.taxa_cross_border, que e a fonte unica da regra.",
       "seguranca": "Protegido por PIN de 6 digitos e Face ID, com protocolos padrao internacionais. Vale usar cartao com boa protecao a fraude e acompanhar a fatura, como em qualquer viagem.",
       "falha_mais_comum": "Divergencia de nome entre o cartao e o passaporte. Nome brasileiro longo costuma vir abreviado no cartao - conferir ANTES de viajar, com tempo de pedir 2a via.",
       "antes_de_viajar": "Avisar o banco que havera compras na China, para o cartao nao ser bloqueado por suspeita de fraude.",

@@ -1,19 +1,50 @@
 {
-  "destino": {"cidade": "Lisboa", "pais": "PT"},
-  "datas": {"ida": "2027-03-10", "volta": "2027-03-20"},
+  "destino": {
+    "cidade": "Lisboa",
+    "pais": "PT"
+  },
+  "datas": {
+    "ida": "2027-03-10",
+    "volta": "2027-03-20"
+  },
   "viajantes": 2,
   "moeda_local": "EUR",
   "meio_pagamento": "cartao_credito",
   "spread": null,
   "custos": [
-    {"item": "Passagem aerea ida e volta", "valor": 4200.00, "moeda": "BRL",
-     "por_pessoa": true, "fonte": "trvl search_flights", "consultado_em": "2026-08-28"},
-    {"item": "Bagagem despachada", "valor": 60.00, "moeda": "EUR",
-     "por_pessoa": true, "fonte": "trvl get_baggage_rules", "consultado_em": "2026-08-28"},
-    {"item": "Hospedagem, 10 noites, taxas inclusas", "valor": 1150.00, "moeda": "EUR",
-     "por_pessoa": false, "fonte": "trvl search_hotels_with_details", "consultado_em": "2026-08-28"},
-    {"item": "Passeios e alimentacao", "valor": 700.00, "moeda": "EUR",
-     "por_pessoa": true, "fonte": "roteiro-orcamento", "consultado_em": "2026-08-28"}
+    {
+      "item": "Passagem aerea ida e volta",
+      "valor": 4200.0,
+      "moeda": "BRL",
+      "por_pessoa": true,
+      "fonte": "trvl search_flights",
+      "consultado_em": "2026-08-28"
+    },
+    {
+      "item": "Bagagem despachada",
+      "valor": 60.0,
+      "moeda": "EUR",
+      "por_pessoa": true,
+      "fonte": "trvl get_baggage_rules",
+      "consultado_em": "2026-08-28"
+    },
+    {
+      "item": "Hospedagem, 9 noites, taxas inclusas",
+      "valor": 1150.0,
+      "moeda": "EUR",
+      "por_pessoa": false,
+      "fonte": "trvl search_hotels_with_details",
+      "consultado_em": "2026-08-28",
+      "noites": 9
+    },
+    {
+      "item": "Passeios e alimentacao",
+      "valor": 700.0,
+      "moeda": "EUR",
+      "por_pessoa": true,
+      "fonte": "roteiro-orcamento",
+      "consultado_em": "2026-08-28"
+    }
   ],
   "documentos": {
     "visto": "sem visto, ate 90 dias",
@@ -24,6 +55,60 @@
   },
   "decisoes": [
     "Marco em vez de julho: o trvl mostrou tarifa bem menor fora da alta temporada.",
-    "Passagem em BRL numa agencia daqui, entao nao entra IOF de cambio nessa linha."
-  ]
+    "Passagem em BRL numa agencia daqui, entao nao entra IOF de cambio nessa linha.",
+    "Belem movido de segunda para terca: os monumentos de la fecham as segundas, e 15/03/2027 cai numa."
+  ],
+  "datas_bloqueadas": [
+    {
+      "data": "2027-03-15",
+      "razao": "Monumentos de Belem fecham as segundas",
+      "decisao": "Belem movido de segunda para terca",
+      "fonte": "exemplo ilustrativo, nao conferido"
+    }
+  ],
+  "itens_com_prazo": [
+    {
+      "item": "Ingresso com hora marcada do Mosteiro dos Jeronimos",
+      "janela_dias": 30,
+      "cidade": "Lisboa",
+      "critico": false,
+      "fonte": "exemplo ilustrativo, nao conferido"
+    },
+    {
+      "item": "Hospedagem",
+      "cidade": "Lisboa",
+      "critico": false,
+      "nota": "Janela aberta, sem prazo fixo: por isso nao declara janela_dias."
+    }
+  ],
+  "roteiro": [
+    {
+      "trecho": "GRU -> Lisboa",
+      "dias": "1-2",
+      "modo": "voo",
+      "duracao": "~10h, noturno"
+    },
+    {
+      "cidade": "Lisboa",
+      "dias": "2-10",
+      "noites": 9,
+      "destaques": [
+        "Belem",
+        "Alfama e Se",
+        "Sintra (bate-volta)",
+        "Time Out Market"
+      ]
+    },
+    {
+      "trecho": "Lisboa -> GRU",
+      "dias": "11",
+      "modo": "voo"
+    }
+  ],
+  "orcamento": {
+    "cotacoes": {
+      "EUR": 5.9344
+    },
+    "cotacoes_em": "2026-09-09"
+  }
 }

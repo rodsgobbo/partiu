@@ -61,8 +61,10 @@ lista que impede o embarque.
 3. **Hospedagem** - com taxa inclusa, nao preco de vitrine.
 4. **Custo em reais** - [[cambio-br]] sobre passagem, hotel e gasto estimado.
 5. **Roteiro** - [[roteiro-orcamento]] com o que sobrou.
-6. **Consolidar** - `consolidar.py` fecha o total em reais.
-7. **Depois de comprar** - a skill `gardening` do travel-hacking-toolkit reaudita
+6. **Conferir** - `conferir.py` procura contradicao entre roteiro, decisoes
+   e orcamento no arquivo de viagem, ANTES de fechar custo.
+7. **Consolidar** - `consolidar.py` fecha o total em reais.
+8. **Depois de comprar** - a skill `gardening` do travel-hacking-toolkit reaudita
    reserva ja feita procurando queda de preco, cabine melhor e mudanca de rota. E
    dinheiro de volta em viagem ja paga, entao vale rodar de tempos em tempos ate
    embarcar, nao so uma vez.
@@ -95,8 +97,14 @@ Duas armadilhas que o esquema resolve e que e facil errar de cabeca:
 Feche com o script, que ja aplica as duas regras:
 
 ```bash
+python conferir.py viagens/<arquivo>.json    # antes de fechar o total
 python .claude/skills/viagem/scripts/consolidar.py viagens/<arquivo>.json
 ```
+
+O `conferir.py` roda antes porque total certo sobre roteiro errado continua
+errado. Ele nao corrige nada: sai com codigo diferente de zero e diz onde os dois
+lados discordam. Corrigir e decisao de quem planeja - reescrever o roteiro
+apagaria a razao registrada na decisao, que e a parte cara de reconstruir.
 
 Ele tambem avisa quando alguma cotacao passou de 21 dias. Preco de passagem de
 tres semanas atras nao e preco, e lembranca. Ver [[dado-datado]].

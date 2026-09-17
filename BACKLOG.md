@@ -133,13 +133,58 @@ Os dois ramos foram testados de fato, com a data do dado simulada em jan/2025
 
 ## Marco 3 — orquestracao
 
-### 3.1 · Esquema do `viagens/<destino>.json` · M · **FEITO 28/08/2026 (provisorio)**
+### 3.1 · Esquema do `viagens/<destino>.json` · M · **FEITO 28/08/2026, CORRIGIDO 09/09/2026**
+
 `viagens/_esquema.md` mais `viagens/exemplo-lisboa-2027-03.json` preenchido. O
 esquema nasceu servindo ao `consolidar.py`: campo que nao ajuda a fechar o total
-nem a lembrar de uma decisao nao entrou.
-**Marcado provisorio de proposito** — foi escrito antes da primeira viagem real
-(item 0.4). Espera-se que mude no primeiro uso; a instrucao no proprio arquivo e
-corrigir o esquema, nao contornar no codigo que le.
+nem a lembrar de uma decisao nao entrou. Foi **marcado provisorio de proposito**
+em 28/08, por ter sido escrito antes da primeira viagem real (item 0.4), com a
+instrucao de corrigir o esquema em vez de contornar no codigo que le.
+
+O provisorio cobrou o preco previsto. A primeira viagem real guardava o orcamento
+em `orcamento.linhas_brl`; `custos[]`, o unico campo que o `consolidar.py` le,
+estava **vazio**. O script somou a lista vazia e imprimiu **TOTAL R$ 0,00, saindo
+com codigo 0**. Nao crashou: respondeu. Numero errado que sai calado, no numero
+que o usuario mais olha.
+
+Havia **tres** contabilidades no mesmo arquivo: `custos` (vazia), `linhas_brl` (a
+que se lia) e valores soltos em `upgrades` e `antes_de_embarcar`, que nenhuma soma
+alcancava.
+
+Corrigido no esquema, nao no contorno, como a instrucao mandava:
+- `custos` vazio agora e **erro**, nao total zero.
+- `valor: null` significa **conhecido, ainda sem preco**: a linha aparece em secao
+  propria, com `estimativa` e `quando_cotar`, e o total passa a se chamar
+  **PARCIAL**, declarado como piso. Mesma decisao do `prazos.py` para prazo nao
+  apurado - somar so o que tem preco faz o orcamento encolher quanto menos voce
+  pesquisou, e a linha que costuma faltar e a passagem.
+- As linhas foram migradas com o valor em moeda estrangeira **recuperado** a partir
+  do convertido, e o fator conferido contra linhas que traziam as duas moedas. Nao
+  foi re-estimativa.
+
+A marca de provisorio saiu em 09/09/2026. Suite de 61 para 66, verificada por
+mutacao.
+
+### 3.1-a · O que a validacao da primeira viagem real achou · M
+
+Cinco defeitos, levantados em 09/09/2026, todos com a mesma forma - uma contradicao
+entre dois blocos do mesmo arquivo:
+
+| # | Achado | Estado em 11/09/2026 |
+|---|---|---|
+| 1 | a faixa de orcamento escrita a mao deixava a folga de fora | **o `conferir.py` acusa sozinho**, e mostra o estouro sobre o orcamento informado |
+| 2 | o roteiro contrariava duas decisoes que tinham movido datas por causa de um feriado | **acusa sozinho**, citando as decisoes |
+| 3 | a contagem de noites dependia de uma data de pouso ainda sem voo comprado | **acusa sozinho**; fecha quando a passagem for comprada |
+| 4 | a sobretaxa de pagamento do destino, ja registrada em `dados/`, nao chegava ao total | **fechado**: o `consolidar.py` soma a sobretaxa |
+| 5 | a data de compra de um ingresso sem segunda chance estava fixada a mao, um dia errada | **o conferidor nao enxerga** enquanto o item nao estiver em `itens_com_prazo[]` |
+
+O item 3.4 constroi o detector. Ele **nao corrige**: corrigir o arquivo de viagem
+esta fora de escopo por decisao de desenho, porque uma correcao automatica apagaria
+a razao registrada na decisao.
+
+O quinto e o limite honesto do detector: ele confere o que esta em forma
+conferivel, e mais nada. A checagem existe e esta testada - foi ela que achou o
+erro de um dia -, mas um item escrito em prosa continua dependendo de alguem ler.
 
 ### 3.2 · Reaproveitar o `gardening` do toolkit · P · **FEITO 28/08/2026**
 Virou o passo 7 da skill `viagem`, com a observacao de rodar periodicamente ate
@@ -154,6 +199,65 @@ leva IOF (nao houve operacao de cambio), e `por_pessoa` multiplica pelo numero d
 viajantes. Alerta tambem quando alguma cotacao passou de 21 dias.
 Testado com o exemplo de Lisboa: R$ 25.696,81 para dois, com a linha da passagem
 em reais corretamente fora do IOF.
+
+### 3.4 · Conferencia de arquivo de viagem · G · **FEITO 11/09/2026**
+
+Os cinco achados do 3.1-a tem a mesma forma, e corrigi-los a mao nao impede o
+sexto. Virou mudanca spec-driven, em `.specs/changes/conferencia-de-viagem/`: 8
+requisitos, 7 elementos de design, 48 tarefas em 6 fases (6 delas emendas
+descobertas na execucao), `sds validate spec` passando. Suite de 66 para 122.
+
+O projeto ja tinha esse controle para `dados/` - o `saude.py` - e nao tinha nada
+equivalente para `viagens/`, onde as decisoes caras moram. O `conferir.py` nasce
+irmao dele, na raiz, com o mesmo contrato de codigo de saida.
+
+**Contrato de dados antes da ferramenta.** O desenho descobriu que o conferidor
+nao podia ser construido contra as formas de entao: as informacoes que os
+requisitos tratam como dado so existiam em prosa. Entraram `datas_bloqueadas[]`,
+`itens_com_prazo[]` e `orcamento.cotacoes` no esquema, `noites` na linha de
+hospedagem, e `pais` com `valor` numerico nos dados de destino. A prosa nao saiu:
+`decisoes[]` continua sendo o registro do porque, e o campo novo e o recorte
+conferivel dela.
+
+Decisoes faceis de desfazer sem querer:
+1. **`valido_ate` mudou de dono.** Estava no nivel da sobretaxa, ambiguo sobre se
+   expira a taxa ou a isencao. Agora mora dentro de `isencao`.
+2. **Regra duplicada virou ponteiro.** A mesma sobretaxa estava escrita em dois
+   lugares do arquivo de destino; ha teste que falha se voltar a aparecer duas vezes.
+3. **`janela_dias` e opcional.** A maioria dos itens com prazo tem janela aberta, e
+   obrigar o campo produziria numero inventado num campo de prazo.
+4. **`dias` localiza, `noites` conta.** Nenhuma convencao de intervalo fechava para
+   todos os blocos do roteiro real ao mesmo tempo; escolher uma silenciaria justo
+   a divergencia que precisa aparecer.
+5. **Sobretaxa so na `moeda_local`**, e nao em toda linha estrangeira: compra feita
+   no Brasil em outra moeda nao passa pela carteira digital do destino.
+6. **A deteccao de decisao que nao virou dado e heuristica declarada**:
+   vocabulario curto e vies para o silencio. Nao ha como ler a intencao de uma frase.
+
+O que a implementacao ensinou:
+1. **`roteiro[]` nunca tinha estado no esquema**, e sustenta o calendario inteiro.
+2. **O relatorio dizia "nada se contradiz" sem nenhuma checagem registrada.** Hoje
+   diz "NADA FOI CONFERIDO" e sai com codigo 1 - verde por falta de checagem e a
+   pior falha num hook, porque parece sucesso.
+3. **Estimativa de diaria somada como total** deixava a faixa varias vezes menor, e
+   calada. Agora `noites` na linha multiplica.
+4. **O conferidor tinha uma copia da formula de cambio**, com nome de variavel
+   diferente o bastante para o teste de formula unica nao ver. Hoje o teste procura
+   o padrao e vigia os dois arquivos.
+5. **REQ-4 e REQ-5 colidiam:** com a sobretaxa automatica, a checagem de ausencia
+   acusaria para sempre algo ja dentro do total. Estreitada para o caso real.
+6. **Um bug meu e uma verificacao ruim minha.** Chamei o texto da isencao de
+   `regra`, nome que ja era a aliquota do IOF, e o consolidar quebrava depois da
+   tabela em todo destino com prazo de isencao. Eu tinha verificado olhando o
+   comeco da saida com `head`, e o traceback vinha depois. Os testes pegaram.
+   **Script se verifica pelo fim da saida e pelo codigo de saida, nunca pelo
+   comeco.**
+7. **A mutacao achou correcoes desprotegidas.** A Fase 5 cruzou os 37 criterios com
+   os testes: 16 so tinham verificacao manual. Ganharam teste, e cada regra foi
+   quebrada de proposito ate o teste certo cair.
+
+Checkpoint: `conferir.py` sai 1 no arquivo da viagem real e 0 no exemplo de Lisboa;
+`saude.py` sai 0; o `consolidar.py` fecha Lisboa sem sobretaxa.
 
 ## Marco 4 — qualidade
 
@@ -226,6 +330,18 @@ codigo, e quando quebrar a correcao e reconferir na fonte — nunca afrouxar o
 teste. Verificado por mutacao: reconferencia vencida e fonte de 970 dias, os dois
 alarmes disparam.
 
+### Pagina de decisoes da viagem · **FEITO 09/09/2026**
+
+`decisoes-*.html` na raiz, ignorado pelo git pelo mesmo motivo de `viagens/*.json`:
+tem destino, datas, orcamento e o que foi decidido.
+
+As decisoes ordenadas por prazo, com contagem regressiva calculada na hora de abrir
+- nao congelada no dia em que foi gerada. Abre por duplo clique, sem servidor, e
+grava as escolhas no `localStorage`. Publicada como Artifact, gravaria na propria
+pagina; o caminho ja esta escrito.
+
+Nao confundir com `roteiro-*.html`, que e para ler. Esta e para decidir.
+
 ## Fora de escopo, de proposito
 
 - **Busca propria de voo ou hotel.** E manutencao eterna de scraper para empatar
@@ -259,5 +375,61 @@ alarmes disparam.
   Normalizado, com 5 testes de conformidade que varrem todo JSON de `dados/`.
   Verificados por mutacao: voltar a usar `data_da_coleta`, ou marcar
   `verificado: false` sem `pendencia`, derruba a suite.
+- ~~Alarme de fonte velha nao tinha saida~~ — **resolvido 09/09/2026**.
+  O despertador do `saude.py` tocou sozinho, como previsto: a FONTE do
+  passport-index passou de 180 dias. A correcao obvia nao funcionou. Rodar o
+  `atualizar.py` rebaixou o **mesmo CSV** — o upstream esta em `9c59780` desde
+  01/03/2026, tem 4 commits ao todo e nunca foi um feed. Pior: o canonico da
+  categoria (`ilyankou/passport-index-dataset`, 313 estrelas) esta parado em
+  18/02/2026, **mais velho que o nosso**. Nao ha dataset gratuito de visto sendo
+  mantido.
+
+  Isso expos um defeito no alarme, nao no dado. `saude.py` e `visto.py` tratavam
+  como um so caso dois problemas de acoes opostas: **copia atrasada** (some
+  rodando o atualizar) e **fonte congelada** (nenhuma execucao muda o numero, so
+  resta o consulado). O `visto.py` chegava a mandar, em caixa alta, "rode a
+  atualizacao antes de confiar na resposta acima" — instrucao comprovadamente
+  inutil. Alarme que aponta a acao errada gasta a confianca de que o proximo
+  alarme vai precisar, e alarme sem saida e alarme que alguem desliga.
+
+  `FONTE.json` ganhou o bloco `fonte_congelada` com o achado, a data da
+  reconferencia e **`reconferir_em`**; `confianca` caiu de `media` para `baixa`.
+  O alarme volta sozinho em 09/12/2026 — e volta pelo walker de `reconferir_em`
+  que ja existia, sem codigo especial. Nao e anistia: sem a data de volta, dois
+  testes derrubam a suite.
+
+  **Bug fechado no caminho:** o `atualizar.py` preservaria o `fonte_congelada`
+  mesmo depois de a fonte voltar a andar, calando o alerta para sempre por um
+  motivo ja morto — mesma classe de envenenamento de procedencia que a revisao
+  de agosto pegou. Agora o bloco sai junto quando o commit muda, com aviso para
+  rever a confianca rebaixada.
+
+  Suite de 57 para 61. Verificado por mutacao nas tres regras novas: tirar o
+  `reconferir_em`, fazer o degelo esquecer o bloco e calar toda fonte velha
+  derrubaram cada um exatamente o seu teste.
+
+- **O dado de visto e triagem, nao resposta.** Consequencia permanente do item
+  acima, nao pendencia: enquanto nao existir fonte mantida, `dados/visto-ressalvas.json`
+  preenchido a mao e a unica coisa confiavel para um destino especifico. O
+  dataset serve para varrer 199 destinos, nunca para decidir uma compra.
+
+- **O trvl nao sobe nesta maquina.** O `.mcp.json` aponta para um binario que
+  existe — o `saude.py` confirma "trvl instalado: sim" — mas o servidor falha ao
+  conectar com `EUNKNOWN: uv_spawn`. O item 0.2 fechou dizendo que faltava so
+  reiniciar o Claude Code nesta pasta; reiniciou, e nao subiu. Isso **bloqueia a
+  pendencia 4 da viagem da China**, o alerta de preco por `watch_price`, que
+  deveria ser ligado a partir de outubro/2026. Diagnosticar antes de 15/09.
+
+- **`.specs/` entra no repositorio.** Nao esta no `.gitignore`, de proposito: spec e
+  artefato de projeto, nao dado pessoal como `viagens/*.json`. Decisao tomada em
+  09/09/2026 e registrada aqui para nao ser desfeita por engano.
+
+- **`sds` so aceita LF.** Editar spec com `Path.write_text` no Windows converte o
+  arquivo inteiro para CRLF e o validador passa a alegar que *nenhum* requisito tem
+  criterios, inclusive os intocados. Passar `newline="
+"`. E primo da nota de
+  processo do 4.3 sobre heredoc: neste ambiente, edicao por script precisa de
+  verificacao explicita do resultado, nao do codigo de saida.
+
 - `roteiro-orcamento` nao tem script, e so metodo. Pode ser que precise de um para
   a aritmetica do orcamento; so da para saber depois do 0.4.

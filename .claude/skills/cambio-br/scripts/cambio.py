@@ -68,15 +68,41 @@ def fechamento(moeda: str, dias: int = 10) -> tuple[float, str]:
                      f"Confira o simbolo ISO (ex: ARS, CLP, JPY).")
 
 
-def em_reais(valor: float, taxa: float, spread: float, taxa_iof: float) -> float:
+def em_reais(valor: float, taxa: float, spread: float, taxa_iof: float,
+             sobretaxa: float = 0.0) -> float:
     """A conta canonica do projeto. Mora aqui, e nao em cada script, porque duas
     copias da mesma formula divergem no primeiro ajuste - e um ajuste de aliquota
-    que pega so metade dos lugares e pior que nenhum."""
-    return valor * taxa * (1 + spread) * (1 + taxa_iof)
+    que pega so metade dos lugares e pior que nenhum.
+
+    `sobretaxa` e a que o destino cobra sobre pagamento estrangeiro - o 3% do
+    Alipay na China. Entra aqui, na mesma composicao, e nao numa multiplicacao
+    solta em quem chama: seria a segunda copia da formula, e a regra acima diz o
+    preco disso."""
+    return valor * taxa * (1 + spread) * (1 + taxa_iof) * (1 + sobretaxa)
 
 
 def iof() -> dict:
     return json.loads(DADOS.read_text(encoding="utf-8"))
+
+
+def sobretaxa_do_destino(pais: str):
+    """(valor, arquivo, isencao) da sobretaxa registrada para o pais, ou None.
+
+    Mora aqui, ao lado do IOF, porque e regra de custo de operacao em moeda
+    estrangeira - e porque o consolidar e o conferir precisam da mesma resposta.
+    Dois lugares procurando a mesma regra acabam achando regras diferentes.
+    """
+    for arq in sorted(DADOS.parent.glob("*.json")):
+        try:
+            d = json.loads(arq.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(d, dict) or d.get("pais") != pais:
+            continue
+        t = (d.get("pagamentos") or {}).get("taxa_cross_border")
+        if isinstance(t, dict) and isinstance(t.get("valor"), (int, float)):
+            return t["valor"], f"dados/{arq.name}", t.get("isencao")
+    return None
 
 
 def main():

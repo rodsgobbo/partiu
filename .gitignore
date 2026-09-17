@@ -18,3 +18,7 @@ viagens/*.json
 # Roteiros gerados (saida do ferramentas/gerar.py)
 roteiro-*.html
 dados_roteiro.json
+
+# Paginas de decisao de viagem real: mesmo motivo de viagens/*.json -
+# tem destino, datas, orcamento e o que foi decidido.
+decisoes-*.html

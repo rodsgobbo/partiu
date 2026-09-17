@@ -59,10 +59,23 @@ def dados():
         if ver is False and i is not None:
             estado = "nao verificado"
 
-        # data_do_dado e a idade da fonte la em cima, que pode ser bem maior
+        # data_do_dado e a idade da fonte la em cima, que pode ser bem maior.
+        # Fonte velha e copia velha sao problemas diferentes e pedem acoes
+        # opostas: copia atrasada some rodando o atualizar; fonte congelada, nao
+        # - nenhuma execucao muda o numero, e so restam o consulado e as
+        # ressalvas. Enquanto os dois casos imprimiam a mesma linha, o alarme
+        # cobrava uma acao que nao existia, e alarme sem saida e alarme que
+        # alguem acaba desligando.
         if (j := idade(d.get("data_do_dado"))) is not None and j > VELHO:
-            problemas.append(f"{nome}: a FONTE tem {j} dias (nao so a nossa copia)")
-            detalhe += f", fonte com {j}"
+            congelada = d.get("fonte_congelada") or {}
+            if idade(congelada.get("reconferido_em")) is None:
+                problemas.append(f"{nome}: a FONTE tem {j} dias (nao so a nossa copia)")
+                detalhe += f", fonte com {j}"
+            else:
+                # Nao e anistia: o reconferir_em do bloco mora dentro do JSON e o
+                # walker abaixo o acha em qualquer profundidade, entao o alarme
+                # volta sozinho na data marcada, sem codigo novo.
+                detalhe += f", fonte parada ({j}d), ciente"
 
         # Procura reconferir_em em qualquer profundidade: a data que mais importa
         # costuma estar aninhada (a da China mora em por_destino.CN), e um check

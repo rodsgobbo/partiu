@@ -5,8 +5,14 @@
   "commit": "9c59780",
   "data_do_dado": "2026-03-01",
   "verificado": true,
-  "confianca": "media",
-  "ressalva": "Raspado do Passport Index, site comercial. Nao e fonte oficial. Sempre confirmar no consulado antes de comprar passagem.",
+  "confianca": "baixa",
+  "ressalva": "Raspado do Passport Index, site comercial. Nao e fonte oficial, e a fonte parou de ser atualizada (ver fonte_congelada). Serve de triagem, nao de resposta: confirme no consulado antes de comprar passagem.",
   "como_atualizar": "python dados/passport-index/atualizar.py",
-  "consultado_em": "2026-08-28"
+  "consultado_em": "2026-09-09",
+  "fonte_congelada": {
+    "reconferido_em": "2026-09-09",
+    "reconferir_em": "2026-12-09",
+    "achado": "O upstream nao e um feed: 4 commits, de 2026-02-18 a 2026-03-01, e nada desde entao. O canonico da categoria, ilyankou/passport-index-dataset (313 estrelas), esta parado em 2026-02-18 - mais velho que o nosso. Nao ha alternativa mantida com procedencia audivel: a categoria inteira de dataset gratuito de visto congelou.",
+    "consequencia": "confianca rebaixada de media para baixa. Rodar atualizar.py nao muda o numero, entao o alerta de fonte velha para de cobrar essa acao e passa a cobrar a que resolve: confirmar no consulado e registrar em visto-ressalvas.json."
+  }
 }

@@ -87,19 +87,31 @@ def main():
         return
 
     idade = envelhecimento(fonte["data_do_dado"])
+    congelada = fonte.get("fonte_congelada")
     if idade and idade > 180:
         # O alerta vem ANTES da ressalva porque muda o que fazer agora: com dado
         # velho a resposta acima pode estar errada, nao apenas incompleta.
         print(f"\n{chr(33) * 52}")
         print(f"DADO COM {idade // 30} MESES. Regra de visto muda sem aviso - a China")
         print("deixou de exigir visto de brasileiro entre duas versoes deste mesmo")
-        print("dataset. Rode a atualizacao antes de confiar na resposta acima:")
-        print(f"  {fonte['como_atualizar']}")
+        print("dataset.")
+        if congelada:
+            # Mandar rodar a atualizacao aqui seria mentira: a fonte parou, e
+            # rodar rebaixa o mesmo CSV. Alarme que aponta a acao errada gasta a
+            # confianca que o proximo alarme vai precisar.
+            print(f"A FONTE parou de ser atualizada (conferido em "
+                  f"{congelada['reconferido_em']}):")
+            print("rodar a atualizacao NAO resolve. Confirme no consulado e")
+            print("registre em dados/visto-ressalvas.json antes de comprar passagem.")
+        else:
+            print("Rode a atualizacao antes de confiar na resposta acima:")
+            print(f"  {fonte['como_atualizar']}")
         print(chr(33) * 52)
 
     print(f"\nDado de {fonte['data_do_dado']} (commit {fonte['commit']}), baixado em {fonte['consultado_em']}.")
+    print(f"Confianca: {fonte['confianca']}.")
     print(fonte["ressalva"])
-    if not idade or idade <= 180:
+    if not congelada and (not idade or idade <= 180):
         print(f"Desatualizou? {fonte['como_atualizar']}")
 
 
