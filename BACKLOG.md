@@ -413,12 +413,15 @@ Nao confundir com `roteiro-*.html`, que e para ler. Esta e para decidir.
   preenchido a mao e a unica coisa confiavel para um destino especifico. O
   dataset serve para varrer 199 destinos, nunca para decidir uma compra.
 
-- **O trvl nao sobe nesta maquina.** O `.mcp.json` aponta para um binario que
-  existe — o `saude.py` confirma "trvl instalado: sim" — mas o servidor falha ao
-  conectar com `EUNKNOWN: uv_spawn`. O item 0.2 fechou dizendo que faltava so
-  reiniciar o Claude Code nesta pasta; reiniciou, e nao subiu. Isso **bloqueia a
-  pendencia 4 da viagem da China**, o alerta de preco por `watch_price`, que
-  deveria ser ligado a partir de outubro/2026. Diagnosticar antes de 15/09.
+- ~~O trvl nao sobe nesta maquina~~ — **resolvido 16/09/2026**. O `EUNKNOWN:
+  uv_spawn` do MCP era sintoma: uma politica de **Controle de Aplicativo do
+  Windows** bloqueava o `trvl.exe`, pela linha de comando tambem. Nao era o
+  `.mcp.json` nem o trvl. Liberado pelo usuario. De quebra,
+  `ferramentas/atualizar_trvl.py` passou a atualizar o trvl sozinho pelo
+  `self-update`, que verifica SHA-256 e assinatura ML-DSA-65, guardando a versao
+  anterior e voltando para ela se o Windows bloquear o binario novo - hash novo
+  pode cair na mesma politica. Roda num hook SessionStart local, no maximo uma vez
+  por dia. Primeira execucao: 1.21.4 -> 1.21.6.
 
 - **`.specs/` entra no repositorio.** Nao esta no `.gitignore`, de proposito: spec e
   artefato de projeto, nao dado pessoal como `viagens/*.json`. Decisao tomada em
