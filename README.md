@@ -109,6 +109,7 @@ python .claude/skills/cambio-br/scripts/cambio.py USD 3000          # 156 moedas
 python .claude/skills/documentos-br/scripts/visto.py FR PT JP
 python .claude/skills/documentos-br/scripts/prazos.py 2027-01-15 --exige-visto
 python conferir.py                            # confere TODAS as viagens de uma vez
+python recotar.py                             # o que cotar HOJE, e o que so espera a data
 python .claude/skills/viagem/scripts/consolidar.py viagens/<arquivo>.json
 python saude.py                               # o que envelheceu, o que vence
 python dados/passport-index/atualizar.py      # o que mudou desde a ultima vez

@@ -34,6 +34,12 @@ E a regra que governa as outras, da skill `dado-datado`: **numero sem data nao e
 dado, e lembranca.** Todo dado que estraga — aliquota, exigencia de visto,
 cotacao — carrega a data em que foi apurado e a fonte.
 
+Duas chaves **opcionais** afinam isso, e valem a pena em toda linha nova:
+`volatilidade` (`alta` 21d, `media` 60d, `baixa` 180d) e
+`depende_da_janela_aerea`. Sem a primeira, o `recotar.py` assume `alta` e avisa
+que assumiu — uma reserva de imprevisto passa a vencer junto com tarifa aerea, e
+alarme que esta sempre acionado e alarme que ninguem le.
+
 ## A ordem importa
 
 Documento **antes** de preco. Descobrir que o destino exige visto com 60 dias de
@@ -60,6 +66,7 @@ reconstruir.
 
 ```bash
 python conferir.py viagens/<arquivo>.json                     # contradicoes, antes do total
+python recotar.py                                             # o que cotar hoje
 python .claude/skills/viagem/scripts/consolidar.py viagens/<arquivo>.json   # total em reais
 python saude.py                                               # o que envelheceu, o que vence
 python -m pytest tests/ -q                                    # a suite
