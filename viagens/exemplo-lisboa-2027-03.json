@@ -18,7 +18,9 @@
       "moeda": "BRL",
       "por_pessoa": true,
       "fonte": "trvl search_flights",
-      "consultado_em": "2026-08-28"
+      "consultado_em": "2026-08-28",
+      "volatilidade": "alta",
+      "depende_da_janela_aerea": true
     },
     {
       "item": "Bagagem despachada",
@@ -26,7 +28,8 @@
       "moeda": "EUR",
       "por_pessoa": true,
       "fonte": "trvl get_baggage_rules",
-      "consultado_em": "2026-08-28"
+      "consultado_em": "2026-08-28",
+      "volatilidade": "baixa"
     },
     {
       "item": "Hospedagem, 9 noites, taxas inclusas",
@@ -35,7 +38,8 @@
       "por_pessoa": false,
       "fonte": "trvl search_hotels_with_details",
       "consultado_em": "2026-08-28",
-      "noites": 9
+      "noites": 9,
+      "volatilidade": "alta"
     },
     {
       "item": "Passeios e alimentacao",
@@ -43,7 +47,8 @@
       "moeda": "EUR",
       "por_pessoa": true,
       "fonte": "roteiro-orcamento",
-      "consultado_em": "2026-08-28"
+      "consultado_em": "2026-08-28",
+      "volatilidade": "media"
     }
   ],
   "documentos": {
