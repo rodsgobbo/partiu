@@ -1,0 +1,116 @@
+{
+  "_leia": "Modelo em branco. Copie para viagens/<destino>-<ano-mes>.json e troque os valores. Tudo aqui e placeholder, menos a ESTRUTURA. O formato campo a campo, com o porque de cada regra, esta em viagens/_esquema.md. Este arquivo nasce passando em `python conferir.py` e na suite de testes: se voce editar e algo acusar, foi a sua edicao. Apague esta chave ao copiar.",
+  "destino": {
+    "cidade": "Cidade A",
+    "pais": "PT"
+  },
+  "datas": {
+    "ida": "2027-05-10",
+    "volta": "2027-05-17"
+  },
+  "viajantes": 2,
+  "moeda_local": "EUR",
+  "meio_pagamento": "cartao_credito",
+  "spread": null,
+  "custos": [
+    {
+      "item": "Passagem aerea ida e volta",
+      "valor": 4000.0,
+      "moeda": "BRL",
+      "por_pessoa": true,
+      "fonte": "PREENCHER: de onde veio esta cotacao",
+      "consultado_em": "2027-01-15",
+      "nota": "Em BRL de proposito: passagem paga em real numa agencia daqui nao teve operacao de cambio, entao esta linha NAO leva IOF."
+    },
+    {
+      "item": "Hospedagem, 6 noites, taxas inclusas",
+      "valor": 900.0,
+      "moeda": "EUR",
+      "por_pessoa": false,
+      "fonte": "PREENCHER",
+      "consultado_em": "2027-01-15",
+      "noites": 6
+    },
+    {
+      "item": "Passeios e alimentacao",
+      "valor": 500.0,
+      "moeda": "EUR",
+      "por_pessoa": true,
+      "fonte": "PREENCHER",
+      "consultado_em": "2027-01-15"
+    },
+    {
+      "item": "Ingresso do museu",
+      "valor": null,
+      "moeda": "EUR",
+      "por_pessoa": true,
+      "estimativa": "EUR 15 a 25 por pessoa - referencia, nao cotacao",
+      "quando_cotar": "abre 30 dias antes da visita",
+      "nota": "Exemplo de linha SEM preco. `valor: null` nao e zero: significa conhecida e ainda sem cotacao. Ela aparece em secao propria e faz o total se chamar PARCIAL."
+    }
+  ],
+  "documentos": {
+    "visto": "PREENCHER: o que a skill documentos-br apurou",
+    "fonte_visto": "PREENCHER: qual fonte, com a data dela",
+    "civp_exigido": null,
+    "seguro_obrigatorio": null,
+    "consultado_em": "2027-01-15"
+  },
+  "decisoes": [
+    "Cada linha aqui e uma escolha e o porque dela, em prosa. Nao entra em conta nenhuma.",
+    "Existe porque planejar viagem leva semanas e varias conversas: sem o porque registrado, a sessao seguinte refaz a pesquisa e as vezes chega a outra conclusao.",
+    "Museu movido do dia 4 para o dia 5: em 13/05 ha feriado local e as atracoes lotam."
+  ],
+  "datas_bloqueadas": [
+    {
+      "data": "2027-05-13",
+      "razao": "Feriado local, atracoes lotadas",
+      "decisao": "Museu movido do dia 4 para o dia 5: em 13/05 ha feriado local e as atracoes lotam.",
+      "fonte": "modelo ilustrativo, nao conferido"
+    }
+  ],
+  "itens_com_prazo": [
+    {
+      "item": "Ingresso com hora marcada do museu",
+      "janela_dias": 30,
+      "cidade": "Cidade A",
+      "critico": false,
+      "nota": "So declara janela_dias quem tem prazo fixo contado da data da visita. Nao preencha data_compra a mao: ela existe para ser conferida contra a data derivada."
+    },
+    {
+      "item": "Hospedagem",
+      "cidade": "Cidade A",
+      "critico": false,
+      "nota": "Janela aberta, sem prazo fixo: por isso NAO declara janela_dias."
+    }
+  ],
+  "roteiro": [
+    {
+      "trecho": "GRU -> Cidade A",
+      "dias": "1-2",
+      "modo": "voo",
+      "duracao": "~10h, noturno"
+    },
+    {
+      "cidade": "Cidade A",
+      "dias": "2-8",
+      "noites": 6,
+      "destaques": [
+        "PREENCHER: o que voce vai ver",
+        "Museu (dia 5, remarcado pelo feriado)"
+      ]
+    },
+    {
+      "trecho": "Cidade A -> GRU",
+      "dias": "8",
+      "modo": "voo"
+    }
+  ],
+  "orcamento": {
+    "cotacoes": {
+      "EUR": 6.0
+    },
+    "cotacoes_em": "2027-01-15",
+    "nota_cotacoes": "A conferencia NAO acessa a rede: ela usa estas taxas para checar se a faixa declarada bate com as linhas. Quem busca cotacao ao vivo e fecha o total e o consolidar.py."
+  }
+}
