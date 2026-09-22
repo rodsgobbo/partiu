@@ -44,6 +44,41 @@ isso, em vez de calar.
 **`consultado_em`** e obrigatorio em linha com preco. Preco de passagem de tres semanas atras nao e
 preco, e lembranca — o `consolidar.py` avisa quando a cotacao envelheceu.
 
+**`volatilidade`** e opcional e diz quanto tempo aquele preco aguenta:
+`alta` (21 dias), `media` (60) ou `baixa` (180). Sem o campo, o `recotar.py`
+assume `alta` e **diz que assumiu** — nao ha chute calado.
+
+Ela existe porque o prazo unico produzia alarme constante. Tarifa aerea muda toda
+semana; uma reserva de imprevisto que voce mesmo arbitrou nao muda nunca. Com os
+dois vencendo em 21 dias, a lista de pendencias fica sempre cheia, e lista que
+esta sempre vermelha ninguem le — o dia em que a passagem realmente venceu passa
+junto. Na viagem da China eram 6 linhas "vencidas" das quais nenhuma era tarifa.
+
+**`depende_da_janela_aerea`** e opcional e booleano. Marca a linha de passagem, e
+faz o `recotar.py` trocar a prosa do `quando_cotar` por uma data calculada: a
+janela real de venda da companhia, derivada de `datas`. Ver abaixo.
+
+## A janela de venda, e por que ela olha a volta
+
+Companhia poe voo a venda entre ~330 e ~361 dias antes da partida. Antes disso
+nao ha o que cotar, e buscador vazio nao significa "nao ha voo" — significa "ainda
+nao vendem".
+
+Quem manda e a **ponta mais distante**, nao a mais proxima. Multitrecho e um
+bilhete so: nao adianta a ida estar a venda se a volta nao esta. Conferido em
+22/09/2026 contra o Kiwi, com controle para separar "fora da janela" de "o backend
+falhou":
+
+| Trecho | Distancia | Resultado |
+|---|---|---|
+| GRU->PEK 10/09/2027 | 353 d | 15 opcoes — dentro |
+| PVG->GRU 29/09/2027 | 372 d | 0 opcoes — fora |
+| PVG->GRU 01/06/2027 | 252 d | 15 opcoes — controle: a rota existe |
+
+O controle e o que transforma um zero ambiguo em resposta. Sem ele, `count: 0`
+tanto pode ser "nao esta a venda" quanto "nao consegui perguntar", e os dois pedem
+acoes opostas.
+
 ## Campos
 
 | Campo | Tipo | Nota |

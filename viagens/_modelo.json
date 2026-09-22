@@ -20,7 +20,9 @@
       "por_pessoa": true,
       "fonte": "PREENCHER: de onde veio esta cotacao",
       "consultado_em": "2027-01-15",
-      "nota": "Em BRL de proposito: passagem paga em real numa agencia daqui nao teve operacao de cambio, entao esta linha NAO leva IOF."
+      "nota": "Em BRL de proposito: passagem paga em real numa agencia daqui nao teve operacao de cambio, entao esta linha NAO leva IOF. `volatilidade: alta` = o preco vence em 21 dias. `depende_da_janela_aerea` faz o recotar.py calcular a data em que a companhia poe o voo a venda, em vez de confiar na prosa.",
+      "volatilidade": "alta",
+      "depende_da_janela_aerea": true
     },
     {
       "item": "Hospedagem, 6 noites, taxas inclusas",
@@ -29,7 +31,8 @@
       "por_pessoa": false,
       "fonte": "PREENCHER",
       "consultado_em": "2027-01-15",
-      "noites": 6
+      "noites": 6,
+      "volatilidade": "alta"
     },
     {
       "item": "Passeios e alimentacao",
@@ -37,7 +40,8 @@
       "moeda": "EUR",
       "por_pessoa": true,
       "fonte": "PREENCHER",
-      "consultado_em": "2027-01-15"
+      "consultado_em": "2027-01-15",
+      "volatilidade": "media"
     },
     {
       "item": "Ingresso do museu",
@@ -46,7 +50,8 @@
       "por_pessoa": true,
       "estimativa": "EUR 15 a 25 por pessoa - referencia, nao cotacao",
       "quando_cotar": "abre 30 dias antes da visita",
-      "nota": "Exemplo de linha SEM preco. `valor: null` nao e zero: significa conhecida e ainda sem cotacao. Ela aparece em secao propria e faz o total se chamar PARCIAL."
+      "nota": "Exemplo de linha SEM preco. `valor: null` nao e zero: significa conhecida e ainda sem cotacao. Ela aparece em secao propria e faz o total se chamar PARCIAL.",
+      "volatilidade": "media"
     }
   ],
   "documentos": {
