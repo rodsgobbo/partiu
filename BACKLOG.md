@@ -12,14 +12,43 @@ Tamanhos: `P` ate 30 min · `M` uma sessao · `G` mais de uma sessao.
 
 Sem isso nada roda ponta a ponta, e o resto do backlog e teoria.
 
-### 0.1 · Instalar o travel-hacking-toolkit · P
-```
-/plugin marketplace add borski/travel-hacking-toolkit
-/plugin install travel-hacker@borski
-```
-Os 5 MCPs gratuitos (Skiplagged, Kiwi, Trivago, Ferryhopper, Airbnb) funcionam sem
-chave. **Pronto quando:** `/travel-hacker:getting-started` lista o que esta
-configurado.
+### 0.1 · Instalar o travel-hacking-toolkit · P · **FEITO 22/09/2026**
+travel-hacker 1.1.0 (commit `bf39301`), 48 skills e o agente `travel-hacker`.
+
+**Os comandos do plano nao existem na extensao do VSCode** — `/plugin` responde
+"isn't available in this environment". A instalacao foi manual, em quatro partes,
+e as duas ultimas sao as que de fato ligam o plugin:
+
+| Onde | O que |
+|---|---|
+| `~/.claude/plugins/marketplaces/borski/` | clone do repo |
+| `~/.claude/plugins/cache/borski/travel-hacker/1.1.0/` | copia sem `.git` |
+| `plugins/installed_plugins.json` + `known_marketplaces.json` | o que esta no disco |
+| `~/.claude/settings.json`: `enabledPlugins` + `extraKnownMarketplaces` | **o que carrega na partida** |
+
+Registrar so os dois primeiros JSON nao basta: o plugin fica instalado e nao
+carrega, sem erro nenhum. Foram dois restarts ate achar o `enabledPlugins`.
+
+**Armadilha de Windows:** o repo usa symlinks e o Git daqui esta com
+`core.symlinks=false`, entao `skills/` na raiz vira um **arquivo de 37 bytes** com
+o caminho de destino dentro, e o carregador nao acha skill alguma. Resolvido com
+junction (`New-Item -ItemType Junction`), que nao exige modo desenvolvedor, nos
+dois caminhos. Um `git pull` futuro briga com as junctions — refaca depois de
+atualizar.
+
+Dos 5 MCPs gratuitos, **4 subiram**: Skiplagged, Kiwi, Trivago, Ferryhopper. O
+**Airbnb falha** com `CONNECTION_CLOSED`: ele roda
+`npx -y @openbnb/mcp-server-airbnb@latest`, que baixa e executa o pacote sem pin de
+versao a cada partida. O LiteAPI aparece mas exige `LITEAPI_API_KEY`.
+
+Nenhuma das 12 chaves esta configurada, entao a camada de **milhas e pontos — o
+motivo de instalar isto — segue inerte**. Sem Tier 1 (seats.aero, Duffel, ignav,
+AwardWallet) o toolkit acrescenta pouco ao que o trvl ja fazia, porque os dois
+puxam do mesmo Skiplagged. As chaves entram pelo `scripts/setup-keys.ps1` do repo,
+nunca pelo chat.
+
+Backups do estado anterior: `settings.json.bak-pre-borski`,
+`installed_plugins.json.bak`, `known_marketplaces.json.bak`.
 
 ### 0.2 · Instalar o trvl e validar o `.mcp.json` · P · **FEITO 28/08/2026**
 trvl 1.21.4 instalado localmente, com o checksum SHA256 conferido contra o
@@ -361,6 +390,23 @@ Nao confundir com `roteiro-*.html`, que e para ler. Esta e para decidir.
   `visa-required`. Idem PT, JP, CN. Com passaporte finlandes o mesmo comando
   devolve `freedom-of-movement`, o que isola a causa no dataset e nao no comando.
   E a justificativa empirica da skill [[documentos-br]].
+
+- **22/09/2026** — chave do seats.aero **adiada, de proposito**. Conta free nao da
+  chave de API: exige Pro, US$ 9,99/mes ou US$ 99,99/ano, com 1.000 chamadas/dia
+  para uso pessoal. E pagar nao garante: a doc oficial diz que a API "nao esta
+  disponivel em todos os paises" e que "nem todo usuario Pro vera o acesso
+  habilitado". Se a aba API nao aparecer em `seats.aero/settings`, a conta nao tem
+  acesso, independente do pagamento — entao, se um dia for testar, assine o mensal
+  e cancele, nunca o anual as cegas. Fonte:
+  https://docs.seats.aero/article/68-seatsaero-pro-api-access-limits-and-usage
+
+  Ela e a **unica chave paga** da lista e a que menos serve aqui: e busca de
+  *award* em 27 programas majoritariamente americanos, enquanto toda viagem em
+  `viagens/` e passagem paga em dinheiro. As que moveriam a agulha sao **Duffel**
+  (busca gratis, dado de GDS por classe tarifaria) e **Ignav** (1.000 requisicoes
+  gratis) — ambas pendentes. Nota de cambio, no espirito da [[cambio-br]]:
+  assinatura recorrente em dolar no cartao brasileiro leva IOF e spread, entao
+  "dez dolares por mes" nao custa dez dolares.
 
 ## Divida conhecida
 

@@ -11,9 +11,15 @@ venv/
 .claude/settings.local.json
 
 # Viagens reais: dado pessoal, fica so no disco.
-# O exemplo publico e viagens/exemplo-*.json.
+# Publicos: o exemplo preenchido e o modelo em branco para copiar.
 viagens/*.json
 !viagens/exemplo-*.json
+!viagens/_modelo.json
+
+# Backup de arquivo de viagem: mesmo dado pessoal do original.
+# `viagens/*.json` nao pega `.json.bak`, entao precisa da linha propria.
+*.bak
+*.bak-*
 
 # Roteiros gerados (saida do ferramentas/gerar.py)
 roteiro-*.html
