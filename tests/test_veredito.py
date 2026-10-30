@@ -21,8 +21,9 @@ def carregar(caminho: Path):
 veredito = carregar(RAIZ / "veredito.py")
 HOJE = date(2026, 10, 30)
 IDA = "2027-03-10"                   # 131 dias: janela aberta
-PRAZOS = {"visto": {"prazo_dias": None}, "civp": {"prazo_dias": 10},
-          "eta": {"prazo_dias": None}}
+PRAZOS = {"visto": [{"id": "visto", "prazo_dias": None}],
+          "civp": [{"id": "vacina", "prazo_dias": 10}],
+          "eta": [{"id": "eta", "prazo_dias": None}]}
 
 
 def tendencia(direcao="estavel", dias_atras=0, **extra):
@@ -129,6 +130,16 @@ def test_prazo_nao_verificado_decide_mas_se_denuncia():
     d = decidir(v)
     assert d["decidiu"] == "documento"
     assert "NAO VERIFICADO" in d["motivo"]
+
+
+def test_documento_com_duas_etapas_nao_cala_a_sem_prazo():
+    """CIVP tem vacina (10 d) e emissao (sem prazo apurado). Guardar so uma etapa
+    por documento calava a outra - e a que sumia era a desconhecida."""
+    prazos = {"civp": [{"id": "vacina", "prazo_dias": 10}, {"id": "emissao", "prazo_dias": None}]}
+    v = viagem(passagem(tend=tendencia("subindo")), exige=["civp"])
+    d = veredito.decidir(v, v["custos"][0], HOJE, prazos)
+    assert d["veredito"] == "SEM VEREDITO"
+    assert any("emissao" in f for f in d["faltando"])
 
 
 def test_prazo_generico_apurado_basta():

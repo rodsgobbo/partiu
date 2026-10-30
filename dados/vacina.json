@@ -1,8 +1,63 @@
 {
   "dado": "exigencia de vacina e CIVP por destino, viajante saindo do Brasil",
   "verificado": false,
-  "pendencia": "Nao preenchido. Nao existe dataset publico confiavel (procurei no GitHub: zero repos). Preencher sob demanda, por destino, consultando ANVISA (emissao do CIVP) e o site oficial de saude do pais de destino, e registrar a data da consulta em cada entrada.",
-  "por_destino": {},
+  "pendencia": "Preenchido por destino a partir da Country List da OMS, edicao de 18/11/2022 revisada em 03/01/2023 - a mais recente que a OMS publica, mas a regra de cada pais tem o ano em que foi informada (2019 a 2022). Conferir no consulado do destino antes de embarcar; a OMS mesma avisa que a exigencia muda a qualquer momento.",
+  "por_destino": {
+    "CN": {
+      "exige_civp": true,
+      "vacinas": [
+        "febre amarela"
+      ],
+      "prazo_antes_da_viagem": 10,
+      "regra": "prova de vacina de febre amarela para viajantes a partir de 9 meses vindos de pais com risco de transmissao (o Brasil e um), ou com escala de mais de 12h em aeroporto de pais com risco",
+      "idade_minima_meses": 9,
+      "ano_da_regra_na_oms": 2022,
+      "fonte": "https://cdn.who.int/media/docs/default-source/travel-and-health/vaccination-requirements-and-who-recommendations-ith-2022-country-list.pdf",
+      "consultado_em": "2026-10-30"
+    },
+    "EG": {
+      "exige_civp": true,
+      "vacinas": [
+        "febre amarela"
+      ],
+      "prazo_antes_da_viagem": 10,
+      "regra": "prova de vacina de febre amarela para viajantes a partir de 9 meses vindos de pais com risco de transmissao (o Brasil e um), ou com escala de mais de 12h em aeroporto de pais com risco",
+      "idade_minima_meses": 9,
+      "ano_da_regra_na_oms": 2022,
+      "fonte": "https://cdn.who.int/media/docs/default-source/travel-and-health/vaccination-requirements-and-who-recommendations-ith-2022-country-list.pdf",
+      "consultado_em": "2026-10-30"
+    },
+    "TH": {
+      "exige_civp": true,
+      "vacinas": [
+        "febre amarela"
+      ],
+      "prazo_antes_da_viagem": 10,
+      "regra": "prova de vacina de febre amarela para viajantes a partir de 9 meses vindos de pais com risco de transmissao (o Brasil e um), ou com escala de mais de 12h em aeroporto de pais com risco",
+      "idade_minima_meses": 9,
+      "ano_da_regra_na_oms": 2022,
+      "fonte": "https://cdn.who.int/media/docs/default-source/travel-and-health/vaccination-requirements-and-who-recommendations-ith-2022-country-list.pdf",
+      "consultado_em": "2026-10-30"
+    },
+    "VN": {
+      "exige_civp": false,
+      "vacinas": [],
+      "prazo_antes_da_viagem": null,
+      "regra": "sem exigencia na entrada",
+      "ano_da_regra_na_oms": 2019,
+      "fonte": "https://cdn.who.int/media/docs/default-source/travel-and-health/vaccination-requirements-and-who-recommendations-ith-2022-country-list.pdf",
+      "consultado_em": "2026-10-30"
+    },
+    "TR": {
+      "exige_civp": false,
+      "vacinas": [],
+      "prazo_antes_da_viagem": null,
+      "regra": "sem exigencia na entrada",
+      "ano_da_regra_na_oms": 2021,
+      "fonte": "https://cdn.who.int/media/docs/default-source/travel-and-health/vaccination-requirements-and-who-recommendations-ith-2022-country-list.pdf",
+      "consultado_em": "2026-10-30"
+    }
+  },
   "modelo_de_entrada": {
     "XX": {
       "exige_civp": null,
@@ -12,6 +67,7 @@
       "consultado_em": ""
     }
   },
-  "nota": "Febre amarela e o caso mais comum: alguns paises exigem CIVP de quem vem do Brasil, e a vacina precisa de 10 dias de antecedencia para o certificado valer.",
-  "consultado_em": null
+  "nota": "Febre amarela e o caso que pega brasileiro: quem exige, exige de quem VEM do Brasil, nao so de quem vai a area de risco. A vacina so vale 10 dias depois da dose (dados/prazos.json). O CIVP e emitido gratis pela ANVISA, online, para quem se vacinou no Brasil.",
+  "consultado_em": "2026-10-30",
+  "reconferir_em": "2027-06-30"
 }

@@ -142,7 +142,21 @@ esta entendida e anotada.
 
 Visto ja funciona. Vacina e seguro estao vazios de proposito.
 
-### 2.1 · Preencher vacina e seguro para 3 destinos seus · M
+### 2.1 · Preencher vacina e seguro para 3 destinos seus · M · **VACINA FEITA 30/10/2026, SEGURO NAO**
+`dados/vacina.json` com cinco destinos, da Country List da OMS (18/11/2022, rev.
+03/01/2023): tres exigem febre amarela de quem vem do Brasil, dois nao. **Isso
+derrubou uma conclusao do mesmo dia:** uma viagem com visto na chegada tinha sido
+marcada como "nada a providenciar antes", e exige a vacina 10 dias antes.
+
+De quebra, dois consertos: o `veredito.py` guardava so um item por documento em
+`dados/prazos.json`, e o CIVP tem dois (vacina e emissao) - a etapa sem prazo
+sumia calada; e a emissao do CIVP deixou de ser presencial (online desde 2023,
+Meu SUS Digital ou gov.br), agora com teto de 14 dias nao verificado.
+
+Seguro continua vazio: nenhuma fonte oficial, so blog de corretora se
+contradizendo.
+
+Texto original:
 Nao tentar cobrir o mundo — preencher sob demanda, comecando pelos destinos que
 voce realmente considera. ANVISA para CIVP, site oficial de saude do destino,
 norma do bloco para seguro.

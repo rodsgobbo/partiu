@@ -45,8 +45,13 @@ DIRECOES = ("subindo", "estavel", "caindo")
 
 
 def carregar_prazos():
-    return {i["requer"]: i for i in json.loads(PRAZOS.read_text(encoding="utf-8"))["itens"]
-            if i.get("requer")}
+    """`requer` -> lista de itens. Um documento pode ter mais de uma etapa com
+    prazo (vacina e emissao do certificado): guardar so um calava o outro."""
+    prazos = {}
+    for i in json.loads(PRAZOS.read_text(encoding="utf-8"))["itens"]:
+        if i.get("requer"):
+            prazos.setdefault(i["requer"], []).append(i)
+    return prazos
 
 
 def limite_documento(v, prazos_gerais):
@@ -73,16 +78,18 @@ def limite_documento(v, prazos_gerais):
     for req in docs["exige"]:
         p = proprios.get(req)
         if p is not None:
-            dias, fonte = p.get("dias"), p.get("fonte") or "sem fonte"
+            fonte = p.get("fonte") or "sem fonte"
             if p.get("verificado") is False:
                 fonte += ", NAO VERIFICADO"
+            etapas = [(req, p.get("dias"), fonte)]
         else:
-            geral = prazos_gerais.get(req) or {}
-            dias, fonte = geral.get("prazo_dias"), "dados/prazos.json"
-        if dias is None:
-            faltando.append(req)
-            continue
-        limites.append((ida - timedelta(days=dias), f"{req}: {dias}d antes da ida ({fonte})"))
+            etapas = [(f"{req} ({i.get('id', '?')})", i.get("prazo_dias"), "dados/prazos.json")
+                      for i in prazos_gerais.get(req) or [{}]]
+        for nome, dias, fonte in etapas:
+            if dias is None:
+                faltando.append(nome)
+                continue
+            limites.append((ida - timedelta(days=dias), f"{nome}: {dias}d antes da ida ({fonte})"))
 
     if faltando:
         return None, None, ("prazo nao apurado para " + ", ".join(faltando)
