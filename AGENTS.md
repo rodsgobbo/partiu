@@ -40,6 +40,17 @@ Duas chaves **opcionais** afinam isso, e valem a pena em toda linha nova:
 que assumiu — uma reserva de imprevisto passa a vencer junto com tarifa aerea, e
 alarme que esta sempre acionado e alarme que ninguem le.
 
+Outras chaves opcionais, que ligam checagens. Sem elas a checagem nao roda, ou roda
+avisando que assumiu - descritas em `viagens/_esquema.md`:
+
+| Chave | Onde | O que liga |
+|---|---|---|
+| `conexoes`, `por_conta_propria` | linha do voo | escala que exige documento; bilhete separado passa pela imigracao |
+| `margem_conexao`, `cidade_oculta`, `bagagem_despachada` | linha do voo | risco de bilhete separado e de cidade oculta |
+| `tendencia` | linha da passagem | o veredito de compra |
+| `taxa_turistica` | linha de hospedagem | `inclusa`/`separada`; sem ela o consolidar soma a estimada |
+| `documentos.exige`, `documentos.prazos`, `documentos.tem` | `documentos` | prazo do documento no veredito; o que ja se tem, nas escalas |
+
 ## A ordem importa
 
 Documento **antes** de preco. Descobrir que o destino exige visto com 60 dias de
@@ -118,8 +129,21 @@ Cada uma destas custou uma sessao para descobrir. Nao repita.
   vazios.** Quem confia neles mostra "moeda: " e "cotacao: 0" com cara de dado.
   Para moeda, `cambio-br`.
 - **Agregador tem janela de venda.** Em 22/09/2026 o Skiplagged recusou uma data
-  a 353 dias: `"Must be no greater than"` uma data ~11 meses a frente. Viagem a mais de ~11
-  meses nao e cotavel, e isso nao e erro de configuracao.
+  a 353 dias (`"Must be no greater than"` ~11 meses a frente). Viagem a mais de
+  ~11 meses nao e cotavel, e isso nao e erro de configuracao.
+- **O "mais barato" do trvl pode ser bilhete separado via Canada.** Em 30/10/2026,
+  `search_flights` com `first_result` devolveu, para tres destinos na Asia e na
+  Europa, ida e volta compostas com escala em Toronto e Punta Cana. Antes de gravar
+  preco, veja `fare_type` e `self_connect`, e grave a rota em `conexoes` para o
+  `conferir.py` acusar o visto.
+- **Cotacao de referencia nao e preco das datas.** Valor cotado para outra janela,
+  para comparar destinos, ficou gravado como se fosse o preco da viagem - e uma
+  revisao chegou a chamar a diferenca de "alta". Confira a data da cotacao contra
+  `datas` antes de dizer que um preco subiu.
+- **Febre amarela pega quem VEM do Brasil.** China, Egito e Tailandia exigem o
+  certificado de quem chega do Brasil, com visto na chegada ou sem visto nenhum.
+  Declare `civp` em `documentos.exige`, senao o prazo da vacina fica fora do
+  veredito.
 - **Itinerario barato pode ser impossivel.** Buscadores devolvem rotas com
   conexao em Chicago, Toronto ou Vancouver sem saber que brasileiro precisa de
   visto americano (nao existe transito sem visto nos EUA) e de eTA canadense.
@@ -148,9 +172,10 @@ Nao implemente estas coisas. A ausencia e decisao, nao esquecimento.
 | `viagens/_modelo.json` | esqueleto em branco para copiar |
 | `viagens/exemplo-*.json` | exemplo completo e publico |
 | `.claude/skills/` | as 5 skills, cada uma com `SKILL.md` e `scripts/` |
-| `dados/` | dado que estraga, cada arquivo com fonte e data |
+| `dados/` | dado que estraga, cada arquivo com fonte e data: IOF, visto, prazos, vacina, taxa turistica, transito, aeroportos |
 | `ferramentas/` | geradores de HTML e manutencao |
 | `conferir.py` `saude.py` | conferencia e validade dos dados |
+| `recotar.py` `veredito.py` | o que cotar hoje; comprar agora, esperar ou mudar |
 | `BACKLOG.md` | o que falta, em ordem, e o que ja foi verificado em campo |
 | `.specs/` | requisitos e design de mudancas maiores |
 
