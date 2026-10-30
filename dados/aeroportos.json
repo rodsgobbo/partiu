@@ -1,0 +1,20 @@
+{
+  "dado": "pais de cada aeroporto de conexao comum em rota saindo do Brasil",
+  "verificado": true,
+  "consultado_em": "2026-10-30",
+  "nota": "Pais de aeroporto nao estraga, entao nao ha reconferir_em. A lista e curta de proposito: aeroporto que nao esta aqui faz o conferir.py acusar 'pais desconhecido' em vez de deixar a conexao passar calada. Acrescente quando aparecer.",
+  "por_iata": {
+    "ATL": "US", "DFW": "US", "EWR": "US", "IAD": "US", "IAH": "US", "JFK": "US",
+    "LAX": "US", "MCO": "US", "MIA": "US", "ORD": "US", "SFO": "US",
+    "YUL": "CA", "YVR": "CA", "YYZ": "CA",
+    "CUN": "MX", "MEX": "MX",
+    "PTY": "PA", "BOG": "CO", "LIM": "PE", "SCL": "CL", "EZE": "AR", "AEP": "AR", "MVD": "UY",
+    "LIS": "PT", "OPO": "PT", "MAD": "ES", "BCN": "ES", "CDG": "FR", "ORY": "FR",
+    "AMS": "NL", "FRA": "DE", "MUC": "DE", "ZRH": "CH", "FCO": "IT", "MXP": "IT",
+    "LHR": "GB", "LGW": "GB", "MAN": "GB", "IST": "TR", "SAW": "TR",
+    "DOH": "QA", "DXB": "AE", "AUH": "AE", "ADD": "ET", "JNB": "ZA", "CMN": "MA",
+    "CAI": "EG", "HKG": "HK", "SIN": "SG", "ICN": "KR", "NRT": "JP", "HND": "JP",
+    "PEK": "CN", "PKX": "CN", "PVG": "CN", "CAN": "CN", "BKK": "TH", "HAN": "VN", "SGN": "VN",
+    "GRU": "BR", "GIG": "BR", "BSB": "BR", "VCP": "BR"
+  }
+}

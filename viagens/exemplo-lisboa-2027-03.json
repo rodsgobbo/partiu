@@ -18,7 +18,15 @@
       "moeda": "BRL",
       "por_pessoa": true,
       "fonte": "trvl search_flights",
-      "consultado_em": "2026-08-28"
+      "consultado_em": "2026-08-28",
+      "volatilidade": "alta",
+      "depende_da_janela_aerea": true,
+      "tendencia": {
+        "direcao": "estavel",
+        "faixa": {"min": 3800.0, "max": 4600.0, "moeda": "BRL"},
+        "fonte": "exemplo ilustrativo, nao conferido",
+        "consultado_em": "2026-08-28"
+      }
     },
     {
       "item": "Bagagem despachada",
@@ -26,16 +34,18 @@
       "moeda": "EUR",
       "por_pessoa": true,
       "fonte": "trvl get_baggage_rules",
-      "consultado_em": "2026-08-28"
+      "consultado_em": "2026-08-28",
+      "volatilidade": "baixa"
     },
     {
-      "item": "Hospedagem, 9 noites, taxas inclusas",
+      "item": "Hospedagem, 9 noites, IVA incluso",
       "valor": 1150.0,
       "moeda": "EUR",
       "por_pessoa": false,
       "fonte": "trvl search_hotels_with_details",
       "consultado_em": "2026-08-28",
-      "noites": 9
+      "noites": 9,
+      "volatilidade": "alta"
     },
     {
       "item": "Passeios e alimentacao",
@@ -43,13 +53,15 @@
       "moeda": "EUR",
       "por_pessoa": true,
       "fonte": "roteiro-orcamento",
-      "consultado_em": "2026-08-28"
+      "consultado_em": "2026-08-28",
+      "volatilidade": "media"
     }
   ],
   "documentos": {
     "visto": "sem visto, ate 90 dias",
     "fonte_visto": "passport-index, dado de 2026-03-01",
     "civp_exigido": false,
+    "exige": [],
     "seguro_obrigatorio": null,
     "consultado_em": "2026-08-28"
   },

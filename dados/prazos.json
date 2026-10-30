@@ -17,10 +17,11 @@
     {
       "id": "civp_emissao",
       "nome": "Emissao do CIVP na ANVISA",
-      "prazo_dias": null,
+      "prazo_dias": 14,
       "verificado": false,
-      "fonte": "https://www.gov.br/anvisa",
-      "nota": "Gratuito, presencial nos Centros de Orientacao para Saude do Viajante em portos, aeroportos e fronteiras. A fila varia por posto e nao ha prazo publicado - conferir no posto mais proximo.",
+      "fonte": "https://www.gov.br/pt-br/servicos/obter-o-certificado-internacional-de-vacinacao-e-profilaxia",
+      "consultado_em": "2026-10-30",
+      "nota": "Gratuito e online desde 2023. Dose registrada a partir de 30/12/2022: o CIVP sai na hora no Meu SUS Digital (antigo ConecteSUS), icone Vacinas. Dose anterior ou nao localizada: pedido no gov.br com a carteira de vacinacao, analise de ate 10 dias uteis segundo noticias de secretarias de saude (outras dizem 5). 14 dias corridos e o teto do caso lento; o prazo vigente nao foi lido na pagina oficial. So emite para quem se vacinou no Brasil.",
       "condicao": "depois da vacina, quando o destino exigir CIVP",
       "requer": "civp"
     },

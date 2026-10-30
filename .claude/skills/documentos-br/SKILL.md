@@ -29,12 +29,19 @@ visto de brasileiro.
 comercial, sem garantia oficial. Serve para orientar e para nao repetir o erro
 grosseiro do trvl. Antes de comprar passagem, o usuario confirma no consulado.
 
-## Vacina e seguro: ainda nao temos dado
+## Vacina e seguro: preenchidos sob demanda
 
-`dados/vacina.json` e `dados/seguro.json` estao vazios de proposito. Procurei e
-nao existe dataset publico confiavel para nenhum dos dois.
+`dados/vacina.json` tem China, Egito, Tailandia, Vietna e Turquia, tirados da
+Country List da OMS (edicao 2022, revisada em 2023 - a mais recente publicada).
+**A pegadinha:** China, Egito e Tailandia exigem febre amarela de quem VEM do
+Brasil, nao so de quem vai a area de risco - e isso vale com visto na chegada ou
+sem visto nenhum. Quando o destino exige, declare `civp` em `documentos.exige`,
+senao o `veredito.py` nao conta o prazo da vacina.
 
-Entao **nao responda de memoria**. Para esses dois, busque na web, cite a fonte e
+`dados/seguro.json` segue vazio: nas cinco, so achei afirmacao de blog que vende
+seguro, contraditoria entre si. Seguro so entra com fonte oficial do pais ou bloco.
+
+Para destino que nao esta la, **nao responda de memoria**: busque na web, cite a fonte e
 a data da consulta na resposta, e grave a entrada no JSON no formato que o
 `modelo_de_entrada` mostra - assim a proxima viagem para o mesmo destino ja nasce
 respondida. Fontes que valem: ANVISA para o CIVP, site oficial de saude do pais de

@@ -111,7 +111,10 @@ def main():
     p.add_argument("valor", type=float, help="quanto voce vai gastar, na moeda estrangeira")
     for k, v in SPREAD_PADRAO.items():
         p.add_argument(f"--spread-{k.replace('_', '-')}", type=float, default=v,
-                       dest=f"spread_{k}", help=f"padrao {v:.1%} (chute, troque pelo do seu banco)")
+                       dest=f"spread_{k}",
+                       # argparse formata o help com %: o "%" do percentual tem de
+                       # sair dobrado, senao --help quebra com ValueError.
+                       help=f"padrao {v:.1%} (chute, troque pelo do seu banco)".replace("%", "%%"))
     a = p.parse_args()
 
     moeda = a.moeda.upper()

@@ -41,8 +41,107 @@ prosa que nao se confere e a origem de todos os defeitos que esta conferencia
 procura. Sem o campo, a hospedagem simplesmente nao e conferida — e o relatorio diz
 isso, em vez de calar.
 
+**`conexoes`** e opcional, em linha de voo: a lista dos aeroportos de conexao, em
+codigo IATA (`["ORD"]`), ou objetos quando so uma delas e por conta propria
+(`[{"aeroporto": "LHR", "por_conta_propria": true}]`). `por_conta_propria: true` na
+linha vale para todas. O `conferir.py` cruza o pais de cada conexao com
+`dados/transito.json` e acusa a que exige documento fora de `documentos.tem`.
+Bilhete separado passa pela imigracao para despachar a mala, entao a regra que vale
+e a de entrada, nao a de transito.
+
+Linha com conexao por conta propria declara **`margem_conexao`**:
+`{"minutos": 240, "minima": 180, "fonte": "..."}` - a margem do itinerario, a minima
+recomendada para o aeroporto e de onde ela veio. Sem `minutos` e `fonte`, o
+`conferir.py` acusa; com `minutos` abaixo de `minima`, tambem. Nao ha numero
+generico no codigo: a minima varia com terminal e imigracao.
+
+Linha com **`cidade_oculta: true`** declara **`bagagem_despachada: false`**. A mala
+despachada vai para o destino final do bilhete, nao para onde se desce, e o
+silencio aqui e acusado.
+
+**`documentos.tem`** e a lista do que os viajantes ja tem, no formato
+`"visto:US"`, `"eta:GB"`, `"eta:CA"`. Vazio ou ausente e "nada alem do passaporte".
+
+**`taxa_turistica`** e opcional, em linha de hospedagem: `"inclusa"` (o preco ja
+traz a taxa da cidade ou do pais) ou `"separada"` (ha linha propria para ela). Sem
+o campo, o `consolidar.py` procura a taxa do destino em `dados/taxa-turistica.json`,
+**soma uma estimativa e avisa**. Somar calado contaria duas vezes quando o preco
+ja inclui; nao somar seria o preco de vitrine. A taxa e de onde se dorme: a linha
+pode levar `cidade`, que vence `destino.cidade` em viagem por varias cidades.
+
 **`consultado_em`** e obrigatorio em linha com preco. Preco de passagem de tres semanas atras nao e
 preco, e lembranca — o `consolidar.py` avisa quando a cotacao envelheceu.
+
+**`volatilidade`** e opcional e diz quanto tempo aquele preco aguenta:
+`alta` (21 dias), `media` (60) ou `baixa` (180). Sem o campo, o `recotar.py`
+assume `alta` e **diz que assumiu** — nao ha chute calado.
+
+Ela existe porque o prazo unico produzia alarme constante. Tarifa aerea muda toda
+semana; uma reserva de imprevisto que voce mesmo arbitrou nao muda nunca. Com os
+dois vencendo em 21 dias, a lista de pendencias fica sempre cheia, e lista que
+esta sempre vermelha ninguem le — o dia em que a passagem realmente venceu passa
+junto. Na viagem da China eram 6 linhas "vencidas" das quais nenhuma era tarifa.
+
+**`depende_da_janela_aerea`** e opcional e booleano. Marca a linha de passagem, e
+faz o `recotar.py` trocar a prosa do `quando_cotar` por uma data calculada: a
+janela real de venda da companhia, derivada de `datas`. Ver abaixo.
+
+**`tendencia`** e opcional e mora na linha de passagem. E o que o historico do
+alerta de preco da rota mostra (`trvl watch history <id>`), gravado para o
+`veredito.py` ler sem rede. Nao use o `forecast` do trvl: ele le outro historico,
+vazio, e devolve um neutro com cara de resposta (ver a skill `viagem`).
+
+```json
+"tendencia": {"direcao": "caindo", "faixa": {"min": 3800, "max": 4600, "moeda": "BRL"},
+              "fonte": "trvl watch history <id>, 12 pontos", "consultado_em": "2026-10-30"}
+```
+
+`direcao` e `subindo`, `estavel` ou `caindo`. `faixa` e a faixa historica, e so
+entra com fonte: faixa inventada da nota de oferta com cara de dado. Em moeda
+diferente da linha ela nao e comparada. Tendencia estraga no ritmo da tarifa, 21
+dias.
+
+## O veredito, e por que o documento manda
+
+O `veredito.py` le cada linha de passagem e responde RESERVE, ESPERE, MUDE ou
+SEM VEREDITO, nomeando qual insumo decidiu. Tres insumos: a cotacao (viva pela
+`volatilidade`), a `tendencia`, e o limite do documento, que sai de
+`documentos.exige`.
+
+| Campo | Tipo | Nota |
+|---|---|---|
+| `documentos.exige` | lista | `visto`, `civp`, `eta` — os nomes do `requer` de `dados/prazos.json`. `[]` e resposta: nada a providenciar. `null` ou ausente: a `documentos-br` nao rodou |
+| `documentos.prazos` | objeto | prazo apurado para ESTE destino, que vence o generico: `{"visto": {"dias": 45, "fonte": "...", "consultado_em": "..."}}` |
+
+A ordem das regras e o ponto: **documento que nao sai a tempo decide sozinho**, e a
+tendencia caindo so vira ESPERE se sobram mais de 14 dias ate o limite do
+documento. Esperar uma queda que chega depois da fila do consulado nao e economia.
+
+Faltando um insumo, a resposta e SEM VEREDITO com a lista do que falta — todos de
+uma vez. O `exige` e separado do `visto` em prosa pelo mesmo motivo do `requer` do
+`prazos.json`: decisao que depende de ler frase muda quando alguem reescreve a
+frase.
+
+## A janela de venda, e por que ela olha a volta
+
+Companhia poe voo a venda entre ~330 e ~361 dias antes da partida. Antes disso
+nao ha o que cotar, e buscador vazio nao significa "nao ha voo" — significa "ainda
+nao vendem".
+
+Quem manda e a **ponta mais distante**, nao a mais proxima. Multitrecho e um
+bilhete so: nao adianta a ida estar a venda se a volta nao esta. Conferido em
+22/09/2026 contra o Kiwi, com controle para separar "fora da janela" de "o backend
+falhou":
+
+| Trecho | Distancia | Resultado |
+|---|---|---|
+| ida de uma viagem real | 353 d | 15 opcoes — dentro |
+| volta da mesma viagem | 372 d | 0 opcoes — fora |
+| mesma volta, 252 d a frente | 252 d | 15 opcoes — controle: a rota existe |
+
+O controle e o que transforma um zero ambiguo em resposta. Sem ele, `count: 0`
+tanto pode ser "nao esta a venda" quanto "nao consegui perguntar", e os dois pedem
+acoes opostas.
 
 ## Campos
 

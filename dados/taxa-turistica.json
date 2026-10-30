@@ -1,0 +1,90 @@
+{
+  "dado": "taxas que o preco de vitrine da hospedagem costuma esconder, por destino",
+  "verificado": false,
+  "consultado_em": "2026-10-30",
+  "pendencia": "Nenhuma das tres foi lida no texto primario: a pagina da Camara de Lisboa responde 403 a leitura automatica, a da TURMOB recusou conexao, e a Tailandia nao tem norma publicada. Os valores vem de paginas que citam a fonte primaria; conferir no edital e no Resmi Gazete antes de fechar compra.",
+  "nota": "Preenchido sob demanda, pelos destinos das viagens em viagens/, nao para cobrir o mundo. Taxa de resort e de limpeza sao da propriedade, nao da cidade: nao moram aqui. O consolidar.py le este arquivo e soma a taxa estimada em toda linha de hospedagem do destino que nao declare `taxa_turistica` (inclusa ou separada).",
+  "tipos": {
+    "por_noite_pessoa": "valor fixo por noite e por hospede, ate max_noites",
+    "percentual_diaria": "fracao do valor da hospedagem",
+    "entrada": "valor por pessoa por entrada no pais, sem relacao com hospedagem"
+  },
+  "por_pais": {
+    "PT": {
+      "cidades": {
+        "Lisboa": {
+          "nome": "Taxa municipal turistica de dormida",
+          "tipo": "por_noite_pessoa",
+          "vigencias": [
+            {
+              "de": "2024-09-01",
+              "ate": null,
+              "valor": 4.0,
+              "moeda": "EUR",
+              "max_noites": 7,
+              "idade_minima": 13,
+              "status": "em_vigor",
+              "base": "Edital n.o 234/2024, Camara Municipal de Lisboa",
+              "fonte": "https://informacoeseservicos.lisboa.pt/servicos/detalhe/taxa-municipal-turistica (citada; 403 a leitura direta)",
+              "verificado": false
+            }
+          ],
+          "nota": "A idade minima de 13 anos vem de fonte secundaria (Portal da Queixa). Cruzeiro em transito paga outra taxa, de chegada, que nao e de hospedagem.",
+          "consultado_em": "2026-10-30",
+          "reconferir_em": "2027-02-10"
+        }
+      }
+    },
+    "TR": {
+      "nacional": {
+        "nome": "Konaklama vergisi (imposto de hospedagem)",
+        "tipo": "percentual_diaria",
+        "vigencias": [
+          {
+            "de": "2026-05-01",
+            "ate": "2026-12-31",
+            "valor": 0.01,
+            "status": "em_vigor",
+            "base": "Decreto Presidencial 11263, Resmi Gazete 33240 de 01/05/2026",
+            "fonte": "https://www.moore.com.tr/en/the-accommodation-tax-rate-has-been-reduced-to-1-until-december-31-2026/",
+            "verificado": false
+          },
+          {
+            "de": "2027-01-01",
+            "ate": null,
+            "valor": 0.02,
+            "status": "em_vigor",
+            "base": "volta da aliquota da lei ao fim do decreto",
+            "fonte": "Dentons, guia tributario da Turquia; nao achado em pagina da Receita turca",
+            "verificado": false
+          }
+        ],
+        "nota": "Base e o valor da hospedagem SEM o IVA, e a taxa sai destacada na fatura - entao preco de vitrine pode vir sem ela. O consolidar aplica sobre o valor da linha, que costuma incluir IVA: superestima um pouco, nunca subestima. Varios guias de 2026 ainda citam 2%; para a viagem de 2027, 2% e o que vale se nao houver nova prorrogacao.",
+        "consultado_em": "2026-10-30",
+        "reconferir_em": "2026-12-20"
+      }
+    },
+    "TH": {
+      "nacional": {
+        "nome": "Taxa de entrada de turista",
+        "tipo": "entrada",
+        "vigencias": [
+          {
+            "de": null,
+            "ate": null,
+            "valor": null,
+            "moeda": "THB",
+            "faixa_proposta": [300, 450],
+            "status": "proposta",
+            "base": "aprovada em principio pelo gabinete; sem norma nem sistema de cobranca",
+            "fonte": "https://tvc.co.th/guides/thai-tourist-tax-is-back-under-new-government (28/09/2026: ainda nao cobrada; comite propos THB 450 em 08/2026)",
+            "verificado": false
+          }
+        ],
+        "nota": "Proposta ha anos e adiada varias vezes. Nao entra no total; aparece como aviso. A taxa de embarque internacional (PSC) subiu de THB 730 para 1.120 em 20/06/2026, mas ela vem dentro da passagem.",
+        "consultado_em": "2026-10-30",
+        "reconferir_em": "2027-01-31"
+      }
+    }
+  }
+}

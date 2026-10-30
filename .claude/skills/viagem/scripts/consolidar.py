@@ -15,6 +15,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[4]
 CAMBIO = RAIZ / ".claude" / "skills" / "cambio-br" / "scripts" / "cambio.py"
+TAXAS = RAIZ / "dados" / "taxa-turistica.json"
 IDADE_MAXIMA = 21   # dias; acima disso a cotacao vira lembranca, nao preco
 
 # meio de pagamento -> (chave no iof.json, chave no SPREAD_PADRAO). Um mapa so,
@@ -53,6 +54,101 @@ def linha_em_brl(custo: dict, taxa: float, spread: float, taxa_iof: float,
     if custo["moeda"] == "BRL":
         return bruto
     return cb.em_reais(bruto, taxa, spread, taxa_iof, sobretaxa)
+
+
+def carregar_taxas():
+    return json.loads(TAXAS.read_text(encoding="utf-8"))
+
+
+def vigencia_na(regra: dict, dia: date):
+    """A vigencia que alcanca `dia`, ou None. Taxa que muda de aliquota no meio
+    do caminho (a da Turquia muda na virada de 2027) escolhe pela data da ida."""
+    for vig in regra.get("vigencias", []):
+        de = date.fromisoformat(vig["de"]) if vig.get("de") else date.min
+        ate = date.fromisoformat(vig["ate"]) if vig.get("ate") else date.max
+        if de <= dia <= ate:
+            return vig
+    return None
+
+
+def taxas_turisticas(v: dict, dados: dict, pessoas: int):
+    """(linhas_estimadas, avisos) para as taxas do destino que o arquivo nao cobriu.
+
+    Linha de hospedagem e a que tem `noites`. Ela cobre a taxa declarando
+    `taxa_turistica`: "inclusa" (ja no preco) ou "separada" (ha linha propria).
+    Sem a declaracao, a taxa entra estimada - somar calado em cima de um preco
+    que talvez ja a inclua seria contar duas vezes, e nao somar seria o preco de
+    vitrine que este item existe para desmascarar. Entre os dois, soma e DIZ.
+    """
+    pais = v["destino"]["pais"]
+    regras_pais = (dados.get("por_pais") or {}).get(pais) or {}
+    ida = date.fromisoformat(v["datas"]["ida"])
+    linhas, avisos = [], []
+
+    nacional = regras_pais.get("nacional")
+    if nacional and nacional.get("tipo") == "entrada":
+        vig = vigencia_na(nacional, ida)
+        if vig and vig.get("status") == "proposta":
+            faixa = vig.get("faixa_proposta") or ["?", "?"]
+            avisos.append(f"{nacional['nome']}: proposta, ainda nao cobrada "
+                          f"({vig.get('moeda', '')} {faixa[0]}-{faixa[1]} por pessoa). "
+                          f"Fora do total; reconferir em {nacional.get('reconferir_em')}.")
+        elif vig and vig.get("valor") is not None:
+            linhas.append({"item": f"{nacional['nome']} (estimada)", "valor": vig["valor"],
+                           "moeda": vig["moeda"], "por_pessoa": True,
+                           "consultado_em": nacional.get("consultado_em")})
+
+    for c in v.get("custos", []):
+        if "noites" not in c or c.get("taxa_turistica") in ("inclusa", "separada"):
+            continue
+        cidade = c.get("cidade") or v["destino"].get("cidade")
+        regra = (regras_pais.get("cidades") or {}).get(cidade) or nacional
+        if not regra or regra.get("tipo") == "entrada":
+            continue
+        vig = vigencia_na(regra, ida)
+        if not vig or vig.get("status") != "em_vigor" or vig.get("valor") is None:
+            continue
+        if regra["tipo"] == "por_noite_pessoa":
+            noites = min(c["noites"], vig.get("max_noites") or c["noites"])
+            valor = vig["valor"] * noites * pessoas
+            moeda = vig["moeda"]
+            conta = (f"{vig['moeda']} {vig['valor']:g} x {noites} noite(s) x {pessoas} "
+                     f"pessoa(s)")
+            if vig.get("idade_minima"):
+                conta += f", supondo todos com {vig['idade_minima']}+ anos"
+        elif regra["tipo"] == "percentual_diaria":
+            if c.get("valor") is None:
+                # Sem preco nao ha base, mas calar aqui faria a taxa sumir do
+                # orcamento justamente na linha que ainda vai ser cotada.
+                avisos.append(f"'{c['item']}' ainda sem preco: quando tiver, leva "
+                              f"{regra['nome']} de {vig['valor']:.0%}, que a vitrine "
+                              f"costuma deixar de fora.")
+                continue
+            valor = c["valor"] * (pessoas if c.get("por_pessoa") else 1) * vig["valor"]
+            moeda = c["moeda"]
+            conta = f"{vig['valor']:.0%} sobre a linha"
+        else:
+            continue
+        linhas.append({"item": f"{regra['nome'][:24]} (estimada)", "valor": round(valor, 2),
+                       "moeda": moeda, "por_pessoa": False,
+                       "consultado_em": regra.get("consultado_em")})
+        nao_conf = "" if vig.get("verificado") else " Aliquota NAO VERIFICADA."
+        avisos.append(f"'{c['item']}' nao declara taxa_turistica: somada {regra['nome']} "
+                      f"estimada ({conta}).{nao_conf} Se o preco ja inclui, declare "
+                      f"\"taxa_turistica\": \"inclusa\" na linha.")
+    return linhas, avisos
+
+
+def maiores_linhas(em_reais: list, total: float, n: int = 3) -> list:
+    """As `n` linhas que mais pesam, com a fatia do total.
+
+    Corte procurado linha a linha, na ordem do arquivo, gasta o esforco em
+    bagagem e eSIM. Quase toda a economia possivel mora nas duas ou tres linhas
+    maiores, e e por elas que a revisao comeca."""
+    if total <= 0:
+        return []
+    ordem = sorted(em_reais, key=lambda x: -x[1])[:n]
+    return [(item, brl, brl / total, moeda) for item, brl, moeda in ordem]
 
 
 def cotar(cb, moeda):
@@ -146,9 +242,11 @@ def main():
             "em custos[] - e o unico\nlugar que este script le. Veja "
             "viagens/_esquema.md.")
 
+    extras, avisos_taxa = taxas_turisticas(v, carregar_taxas(), pessoas)
+
     total = 0.0
-    velhos, cotacoes, sem_preco = [], {}, []
-    for c in v["custos"]:
+    velhos, cotacoes, sem_preco, em_reais = [], {}, [], []
+    for c in v["custos"] + extras:
         # Linha sem preco e conhecida e nao orcada - duas coisas diferentes de
         # inexistente. Mesma decisao do prazos.py com prazo nao apurado: sai em
         # secao propria em vez de sumir, porque sumir daria a impressao de total
@@ -163,6 +261,7 @@ def main():
         sob = sobretaxa if moeda == moeda_local else 0.0
         brl = linha_em_brl(c, taxa, spread, taxa_iof, pessoas, cb, sob)
         total += brl
+        em_reais.append((c["item"], brl, moeda))
         sufixo = "/pessoa" if c.get("por_pessoa") else ""
         print(f"{c['item'][:37]:<38}{c['valor']:>10,.2f} {moeda:<3}{brl:>14,.2f}")
         if sufixo:
@@ -201,6 +300,18 @@ def main():
         print(f"\n{len(sem_preco)} linha(s) sem preco: o numero acima e PISO, nao total.")
         print("Somar so o que ja tem preco e como o orcamento fica menor quanto")
         print("menos voce pesquisou - a linha que falta costuma ser a mais cara.")
+
+    maiores = maiores_linhas(em_reais, total)
+    if maiores:
+        print("\nOnde o dinheiro esta (para procurar corte, comece por aqui):")
+        for item, brl, fatia, moeda in maiores:
+            print(f"  {fatia:>4.0%}  R$ {brl:>10,.2f}  {item[:40]}"
+                  + ("" if moeda == "BRL" else f"  ({moeda}: meio de pagamento conta)"))
+
+    if avisos_taxa:
+        print("\nTaxas do destino (dados/taxa-turistica.json):")
+        for aviso in avisos_taxa:
+            print(f"  - {aviso}")
 
     brl_only = [c for c in v["custos"]
                 if c["moeda"] == "BRL" and c.get("valor") is not None]

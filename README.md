@@ -6,7 +6,9 @@ voce precisa para embarcar.**
 Sites de viagem mostram o preco da passagem em dolar ou euro e param por ai. O
 que sobra e justamente o que decide se a viagem cabe no bolso: o IOF, o spread do
 seu banco, se e melhor pagar no cartao ou levar especie, quanto o hotel fica
-depois das taxas, e se o destino exige visto com dois meses de fila.
+depois da taxa turistica, se o destino exige visto com dois meses de fila - ou
+vacina de febre amarela de quem vem do Brasil - e se a escala barata do buscador
+exige um visto que voce nao tem.
 
 E isso que este projeto faz. Ele **nao busca voo nem hotel** — deixa isso para
 quem ja faz bem — e cuida da parte brasileira da conta.
@@ -37,7 +39,7 @@ O [Claude Code](https://claude.com/claude-code) e **opcional**. Com ele, voce
 conversa em portugues e as skills fazem o trabalho. Sem ele, os scripts rodam
 sozinhos no terminal, como mostrado abaixo.
 
-## Primeiro uso, em 5 passos
+## Primeiro uso, em 6 passos
 
 ```bash
 git clone https://github.com/rodsgobbo/partiu.git
@@ -85,9 +87,22 @@ python .claude/skills/viagem/scripts/consolidar.py viagens/portugal-2027-05.json
 
 O `conferir.py` vem antes porque **total certo sobre roteiro errado continua
 errado**. Ele procura contradicao — roteiro que discorda do orcamento, decisao que
-nunca virou data, cotacao vencida — e nao corrige nada: diz onde os dois lados
-discordam e deixa a escolha com voce. O `consolidar.py` entao fecha o total em
-reais.
+nunca virou data, cotacao vencida, escala num pais que exige visto que voce nao
+declarou ter, bilhete separado sem margem de conexao — e nao corrige nada: diz onde
+os dois lados discordam e deixa a escolha com voce. O `consolidar.py` entao fecha o
+total em reais, soma a taxa turistica do destino quando a hospedagem nao diz que ja
+a inclui, e termina mostrando as tres linhas que mais pesam: e nelas que se procura
+corte.
+
+**6. Na hora de comprar a passagem**, pergunte se e agora:
+
+```bash
+python veredito.py viagens/portugal-2027-05.json
+```
+
+Ele responde RESERVE, ESPERE ou MUDE e diz o que decidiu: a idade da cotacao, a
+tendencia de preco ou o prazo do documento - que manda nos outros dois. Faltando
+um deles, responde SEM VEREDITO e diz qual falta, em vez de chutar.
 
 ## Ou peca para uma IA fazer
 
@@ -109,6 +124,8 @@ python .claude/skills/cambio-br/scripts/cambio.py USD 3000          # 156 moedas
 python .claude/skills/documentos-br/scripts/visto.py FR PT JP
 python .claude/skills/documentos-br/scripts/prazos.py 2027-01-15 --exige-visto
 python conferir.py                            # confere TODAS as viagens de uma vez
+python recotar.py                             # o que cotar HOJE, e o que so espera a data
+python veredito.py                            # passagem: RESERVE, ESPERE ou MUDE, e por que
 python .claude/skills/viagem/scripts/consolidar.py viagens/<arquivo>.json
 python saude.py                               # o que envelheceu, o que vence
 python dados/passport-index/atualizar.py      # o que mudou desde a ultima vez
@@ -186,10 +203,18 @@ A licenca do trvl vincula o uso do trvl, nao este repositorio.
 
 Rascunho honesto. O que **nao** esta pronto:
 
-- `dados/vacina.json` e `dados/seguro.json` — vazios. Nao existe dataset publico;
-  preenchem sob demanda, por destino, com fonte e data.
-- Prazos de visto, passaporte e CIVP nao apurados. Aparecem no calendario como
-  desconhecidos, de proposito, em vez de sumir.
+- `dados/vacina.json` cobre so cinco destinos (pela lista da OMS de 2022), e
+  `dados/seguro.json` esta vazio: nao ha fonte oficial que ache, so blog de
+  corretora. Os dois preenchem sob demanda, por destino, com fonte e data.
+- Prazos de visto e passaporte nao apurados; o do certificado de vacina tem o da
+  dose (10 dias, regra internacional) e um teto nao verificado para a emissao.
+  Prazo desconhecido aparece no calendario como desconhecido, de proposito, em vez
+  de sumir.
+- `dados/taxa-turistica.json` e `dados/transito.json` (o que brasileiro precisa
+  para fazer escala) cobrem poucos paises, e nenhum foi lido no texto oficial -
+  estao marcados como nao verificados.
+- A tendencia de preco do `veredito.py` vem do historico dos alertas do trvl, que
+  so cresce nos dias em que alguem roda `trvl watch check`.
 - A fonte de visto **congelou**. O `passport-index` nao e atualizado desde
   01/03/2026, e o repositorio canonico da categoria esta ainda mais atrasado —
   nao ha dataset gratuito de visto sendo mantido. A confianca do dado caiu para
