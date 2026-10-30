@@ -542,7 +542,20 @@ fica em outro pais, a `documentos-br` vale para ele tambem.
 **Pronto quando:** numa viagem real, a skill compara aeroporto principal e
 alternativo com o total em reais e o tempo extra, e diz qual compensa.
 
-### 5.7 · Hotel, apartamento ou albergue pelo custo total · M · **FEITO 30/10/2026, sem o Airbnb na sessao**
+### 5.7 · Hotel, apartamento ou albergue pelo custo total · M · **FEITO 30/10/2026**
+
+**Fechado com o Airbnb na sessao, e a resposta foi "nao se aplica":** o Airbnb tirou
+todos os anuncios da China continental em 30/07/2022. Busca vazia para Pequim e
+resposta, nao falha - o controle com Lisboa nas mesmas datas trouxe 18 anuncios.
+Para a China, o lado de apartamento e o do trivago com filtro `kitchen`, que ja
+estava na comparacao.
+
+O controle rendeu um achado para o 5.2: no Airbnb de Lisboa, alguns anuncios trazem
+"Taxes" no detalhe do preco, e R$ 505,98 bate com a taxa municipal (EUR 4 x 7 noites
+x 3 pessoas); outros nao trazem taxa nenhuma. A regra foi para a skill: com "Taxes",
+`taxa_turistica: "inclusa"`; sem, deixe o `consolidar.py` estimar.
+
+Registro anterior:
 Metodo na `roteiro-orcamento`: total = diaria x noites + limpeza + taxa turistica +
 a refeicao que cada tipo obriga a comprar fora. Aplicado numa viagem real, em
 Pequim, com o lado de apartamento vindo do trivago (filtro `kitchen`): hotel com
