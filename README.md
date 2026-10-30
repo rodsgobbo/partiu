@@ -1,233 +1,243 @@
 # partiu
 
-**Quanto uma viagem internacional custa, em reais, para um brasileiro — e o que
-voce precisa para embarcar.**
+**Quanto uma viagem para fora do Brasil custa de verdade, em reais, e o que voce
+precisa para embarcar.**
 
-Sites de viagem mostram o preco da passagem em dolar ou euro e param por ai. O
-que sobra e justamente o que decide se a viagem cabe no bolso: o IOF, o spread do
-seu banco, se e melhor pagar no cartao ou levar especie, quanto o hotel fica
-depois da taxa turistica, se o destino exige visto com dois meses de fila - ou
-vacina de febre amarela de quem vem do Brasil - e se a escala barata do buscador
-exige um visto que voce nao tem.
+Site de viagem mostra o preco da passagem e do hotel, muitas vezes em dolar ou
+euro, e para por ai. Ficam de fora justamente as coisas que decidem se a viagem
+cabe no bolso:
 
-E isso que este projeto faz. Ele **nao busca voo nem hotel** — deixa isso para
-quem ja faz bem — e cuida da parte brasileira da conta.
+- o imposto e a taxa do banco quando voce paga em moeda estrangeira;
+- se e melhor pagar no cartao, levar dinheiro vivo ou usar conta global;
+- a taxa que a cidade cobra por noite de hotel;
+- se o pais pede visto, e quanto tempo ele demora para sair;
+- se o pais pede vacina de febre amarela de quem vem do Brasil;
+- se a escala barata que o site achou exige um visto que voce nao tem.
 
-## Isto serve para voce?
+O partiu cuida dessa parte. Ele **nao procura passagem nem hotel** - isso outros
+sites ja fazem bem. Ele pega os precos que voce encontrou e faz a conta brasileira.
 
-**Serve** se voce esta planejando uma viagem internacional, quer o custo total em
-reais sem surpresa, e nao se incomoda de rodar alguns comandos no terminal.
+## Para quem serve
 
-**Nao serve** se voce quer um buscador de passagem. Nao ha um aqui, de proposito.
+**Serve** se voce esta planejando uma viagem internacional, quer saber o custo
+total em reais sem surpresa e topa colar alguns comandos no terminal (a tela preta
+de digitar comandos do computador).
 
-Voce nao precisa saber programar. Precisa saber abrir um terminal e colar
-comandos, e o passo a passo abaixo assume que voce nunca fez isso com este repo.
+**Nao serve** se voce quer um buscador de passagens. Nao tem um aqui, de proposito.
 
-## O que voce precisa
+Voce **nao precisa saber programar**. O passo a passo abaixo parte do zero.
 
-**Python 3.9 ou mais novo.** So isso. Nao ha `requirements.txt` porque nao ha o
-que instalar — tudo usa a biblioteca padrao. (O `pytest` aparece so se voce quiser
-rodar os testes.)
+## O que voce precisa ter instalado
 
-Para conferir se voce ja tem:
+So o **Python, versao 3.9 ou mais nova**. Nao ha mais nada para instalar.
+
+Para ver se voce ja tem, abra o terminal e digite:
 
 ```bash
 python --version
 ```
 
+Se aparecer `Python 3.9` ou um numero maior, esta pronto.
+
 O [Claude Code](https://claude.com/claude-code) e **opcional**. Com ele, voce
-conversa em portugues e as skills fazem o trabalho. Sem ele, os scripts rodam
-sozinhos no terminal, como mostrado abaixo.
+conversa em portugues e ele roda tudo por voce. Sem ele, voce mesmo roda os
+comandos abaixo.
 
 ## Primeiro uso, em 6 passos
+
+Baixe o projeto e entre na pasta:
 
 ```bash
 git clone https://github.com/rodsgobbo/partiu.git
 cd partiu
 ```
 
-**1. Veja quanto custa uma moeda hoje**, com IOF e spread ja aplicados. Comece por
-aqui: e o comando que mais rapido mostra para que serve o projeto.
+**1. Veja quanto uma moeda custa hoje**, ja com imposto e taxa do banco. E o jeito
+mais rapido de entender para que o projeto serve. Este exemplo mostra quanto
+custam 3.000 euros em reais:
 
 ```bash
 python .claude/skills/cambio-br/scripts/cambio.py EUR 3000
 ```
 
-**2. Descubra o que o destino exige** de um passaporte brasileiro.
+**2. Veja o que cada pais pede** de quem tem passaporte brasileiro. Os codigos
+sao as siglas dos paises (PT e Portugal, FR e Franca, JP e Japao):
 
 ```bash
 python .claude/skills/documentos-br/scripts/visto.py PT FR JP
-```
-
-**3. Veja se a data ainda cabe** — o calendario reverso conta para tras a partir
-da ida e diz se ainda da tempo de tirar visto e passaporte.
-
-```bash
 python .claude/skills/documentos-br/scripts/prazos.py 2027-05-10 --exige-visto
 ```
 
-**4. Crie o arquivo da sua viagem.** Copie o modelo em branco e edite:
+O segundo comando conta para tras a partir do dia da ida (aqui, 10/05/2027) e
+mostra ate quando voce precisa resolver cada documento.
+
+**3. Crie o arquivo da sua viagem.** Copie o modelo em branco:
 
 ```bash
 cp viagens/_modelo.json viagens/portugal-2027-05.json
 ```
 
-O [`_modelo.json`](viagens/_modelo.json) ja vem com a estrutura certa e comentarios
-explicando cada armadilha. O formato completo, campo a campo, esta em
-[`viagens/_esquema.md`](viagens/_esquema.md), e
+Depois abra o arquivo novo num editor de texto e troque os valores pelos da sua
+viagem. O guia [`viagens/_esquema.md`](viagens/_esquema.md) explica cada campo, e
 [`exemplo-lisboa-2027-03.json`](viagens/exemplo-lisboa-2027-03.json) mostra um
-arquivo real preenchido.
+arquivo ja preenchido.
 
-**5. Confira e feche a conta.** Nesta ordem, sempre:
+**4. Peca para conferir o arquivo:**
 
 ```bash
 python conferir.py viagens/portugal-2027-05.json
+```
+
+Ele procura coisas que nao batem: um roteiro que discorda das datas, um preco
+velho, uma escala num pais que pede visto, uma passagem com bilhetes separados
+sem tempo suficiente entre os voos. Ele **nao muda nada no seu arquivo** - so
+aponta o problema e onde ele esta. Quem decide o que fazer e voce.
+
+**5. Feche a conta em reais:**
+
+```bash
 python .claude/skills/viagem/scripts/consolidar.py viagens/portugal-2027-05.json
 ```
 
-O `conferir.py` vem antes porque **total certo sobre roteiro errado continua
-errado**. Ele procura contradicao — roteiro que discorda do orcamento, decisao que
-nunca virou data, cotacao vencida, escala num pais que exige visto que voce nao
-declarou ter, bilhete separado sem margem de conexao — e nao corrige nada: diz onde
-os dois lados discordam e deixa a escolha com voce. O `consolidar.py` entao fecha o
-total em reais, soma a taxa turistica do destino quando a hospedagem nao diz que ja
-a inclui, e termina mostrando as tres linhas que mais pesam: e nelas que se procura
-corte.
+Ele soma tudo, aplica imposto e taxa do banco, inclui a taxa de hotel da cidade
+(e avisa quando fez isso) e termina mostrando as tres coisas que mais pesam no
+total. E nelas que vale procurar economia.
 
-**6. Na hora de comprar a passagem**, pergunte se e agora:
+Confira (passo 4) **antes** de fechar a conta (passo 5): um total certo em cima de
+um roteiro errado continua errado.
+
+**6. Na hora de comprar a passagem**, pergunte se e o momento:
 
 ```bash
 python veredito.py viagens/portugal-2027-05.json
 ```
 
-Ele responde RESERVE, ESPERE ou MUDE e diz o que decidiu: a idade da cotacao, a
-tendencia de preco ou o prazo do documento - que manda nos outros dois. Faltando
-um deles, responde SEM VEREDITO e diz qual falta, em vez de chutar.
+A resposta e uma destas:
+
+| Resposta | Quer dizer |
+|---|---|
+| **RESERVE** | compre agora |
+| **ESPERE** | ainda vale esperar, e ele diz ate quando |
+| **MUDE** | do jeito que esta, a viagem nao fecha - por exemplo, o visto nao sai a tempo |
+| **SEM VEREDITO** | falta informacao para decidir, e ele diz qual |
+
+Ele sempre diz o motivo. E o prazo do documento manda mais que o preco: esperar a
+passagem baratear nao adianta se o visto nao fica pronto a tempo.
 
 ## Ou peca para uma IA fazer
 
-Se voce prefere nao tocar no terminal, aponte um agente de IA para este
-repositorio. O [`AGENTS.md`](AGENTS.md) existe para isso: ele carrega as regras que
-fazem a conta dar certo, a ordem das etapas e as armadilhas ja descobertas.
-
-Com o Claude Code, abra a pasta e peca em portugues mesmo:
+Se voce prefere nao mexer no terminal, abra a pasta do projeto no Claude Code e
+peca em portugues, por exemplo:
 
 > "planeja uma viagem para Portugal em maio de 2027, somos 2, orcamento de R$ 25 mil"
 
-As cinco skills em `.claude/skills/` carregam sozinhas e cuidam do resto. Depois
-de clonar, **reinicie o Claude Code** — skills sao lidas na partida.
+Depois de baixar o projeto, **feche e abra o Claude Code de novo** - e assim que
+ele aprende as instrucoes do projeto. Para outros assistentes de IA, as regras
+ficam no [`AGENTS.md`](AGENTS.md).
 
-## Comandos
+## Todos os comandos
 
-```bash
-python .claude/skills/cambio-br/scripts/cambio.py USD 3000          # 156 moedas
-python .claude/skills/documentos-br/scripts/visto.py FR PT JP
-python .claude/skills/documentos-br/scripts/prazos.py 2027-01-15 --exige-visto
-python conferir.py                            # confere TODAS as viagens de uma vez
-python recotar.py                             # o que cotar HOJE, e o que so espera a data
-python veredito.py                            # passagem: RESERVE, ESPERE ou MUDE, e por que
-python .claude/skills/viagem/scripts/consolidar.py viagens/<arquivo>.json
-python saude.py                               # o que envelheceu, o que vence
-python dados/passport-index/atualizar.py      # o que mudou desde a ultima vez
-python -m pytest tests/ -q                    # a suite
-```
+| Comando | Para que serve |
+|---|---|
+| `python .claude/skills/cambio-br/scripts/cambio.py USD 3000` | quanto uma quantia em moeda estrangeira custa em reais (156 moedas) |
+| `python .claude/skills/documentos-br/scripts/visto.py FR PT JP` | o que cada pais pede do passaporte brasileiro |
+| `python .claude/skills/documentos-br/scripts/prazos.py 2027-01-15 --exige-visto` | ate quando resolver cada documento |
+| `python conferir.py` | procura problemas em todas as suas viagens de uma vez |
+| `python recotar.py` | quais precos ja estao velhos e precisam ser buscados de novo hoje |
+| `python veredito.py` | se e hora de comprar a passagem |
+| `python .claude/skills/viagem/scripts/consolidar.py viagens/<arquivo>.json` | o total da viagem em reais |
+| `python saude.py` | quais informacoes guardadas no projeto estao ficando velhas |
+| `python dados/passport-index/atualizar.py` | baixa de novo a lista de vistos |
+| `python -m pytest tests/ -q` | roda os testes do projeto (precisa do `pytest`) |
 
-`cambio.py` e `atualizar.py` batem em rede (PTAX do Banco Central e o dataset do
-passport-index). O `conferir.py` e os testes **nao** — a conferencia precisa
-falhar por inconsistencia, nunca por internet fora do ar.
+Os comandos de moeda e de lista de vistos usam a internet. O `conferir.py` e os
+testes nao usam: eles precisam funcionar mesmo sem conexao.
 
-**Um teste falha de proposito quando os dados envelhecem.**
-`test_nenhum_dado_esta_vencido` compara a data de cada arquivo de `dados/` com o
-prazo declarado nele. Falhar ali nao e bug de codigo, e o projeto avisando que
-algo precisa de um `atualizar.py`. Nao conserte mexendo no teste. E o mesmo
-criterio que a skill `dado-datado` aplica: numero sem data nao e dado, e lembranca.
+**Um dos testes falha de proposito quando alguma informacao fica velha.** Regras
+de imposto, visto e vacina mudam com o tempo, e cada uma tem uma data para ser
+conferida de novo. Quando essa data chega perto, o teste
+`test_nenhum_dado_esta_vencido` avisa. Nao e defeito: e o projeto pedindo para
+alguem conferir a informacao na fonte. Rode `python saude.py` para ver qual.
 
-(O numero de testes cresce com os arquivos de viagem que voce tiver no disco —
-varios sao parametrizados por `viagens/*.json`.)
+## As cinco skills
 
-## Skills
+Skills sao instrucoes que o Claude Code segue quando voce conversa com ele.
 
 | Skill | O que faz |
 |---|---|
-| `viagem` | orquestra tudo, na ordem certa: documento antes de preco |
-| `cambio-br` | PTAX + IOF + spread por meio de pagamento, em reais |
-| `documentos-br` | visto, vacina e seguro para passaporte BR, com prazo |
-| `roteiro-orcamento` | roteiro dia a dia que cabe no orcamento |
-| `dado-datado` | disciplina de fonte e data para dado que estraga |
+| `viagem` | organiza o planejamento inteiro, na ordem certa: documento primeiro, preco depois |
+| `cambio-br` | converte para reais com imposto e taxa do banco, para cada forma de pagamento |
+| `documentos-br` | visto, vacina e seguro para passaporte brasileiro, com prazo |
+| `roteiro-orcamento` | monta o roteiro dia a dia dentro do orcamento, e ajuda a escolher bairro e tipo de hospedagem |
+| `dado-datado` | garante que todo numero que muda com o tempo tenha fonte e data |
 
-## Suas viagens sao suas
+## Suas viagens sao so suas
 
-`viagens/*.json` e ignorado pelo git, menos `exemplo-*.json` e `_modelo.json`. A
-pasta guarda dado pessoal — destino, datas, orcamento, situacao de passaporte — e
-nao ha motivo para isso subir junto com o codigo. Backups (`*.bak`) tambem ficam
-de fora, pelo mesmo motivo.
+Os arquivos das suas viagens, em `viagens/`, **nao vao para a internet**. O
+projeto e configurado para nunca envia-los junto com o resto (so o modelo e o
+exemplo de Lisboa sao publicos). Eles guardam coisas pessoais: destino, datas,
+orcamento, situacao do passaporte.
 
-`roteiro-*.html` e `dados_roteiro.json`, saidas do `ferramentas/gerar.py`, tambem
-sao ignorados: sao documento de viagem, nao codigo. `decisoes-*.html` idem — sao
-paginas de decisao, com orcamento e prazos de quem viaja dentro.
+O mesmo vale para as paginas que o projeto gera para voce ler e decidir
+(`roteiro-*.html` e `decisoes-*.html`).
 
-O formato foi corrigido em 09/09/2026 pela primeira viagem real, como o proprio
-esquema previa. A licao mais cara: o orcamento estava fora de `custos[]`, o
-`consolidar.py` somou a lista vazia e imprimiu **TOTAL R$ 0,00 com codigo de saida
-0**. Hoje `custos` vazio e erro, e linha com `valor: null` significa "conhecida,
-ainda sem preco" — ela aparece em secao propria e o total passa a se chamar
-PARCIAL. Numero errado que sai calado e pior que erro.
+## Ferramentas de fora (opcionais)
 
-## Dependencias externas
+O partiu funciona sozinho. Estas duas ferramentas so servem para **buscar** preco
+de voo e hotel:
 
-As duas sao **opcionais**: as skills daqui rodam sem elas, so nao buscam preco de
-voo e hotel.
-
-| | Como instalar | Licenca |
+| Ferramenta | Como instalar | Licenca |
 |---|---|---|
-| trvl | binario do release, apontado pelo `.mcp.json` | PolyForm Noncommercial — **uso pessoal apenas** |
-| travel-hacking-toolkit | `/plugin marketplace add borski/travel-hacking-toolkit` | MIT |
+| trvl | baixe o programa e aponte o caminho no arquivo `.mcp.json` | so para uso pessoal |
+| travel-hacking-toolkit | `/plugin marketplace add borski/travel-hacking-toolkit` | MIT, uso livre |
+
+Para usar o trvl, copie o arquivo de configuracao de exemplo:
 
 ```bash
-cp .mcp.json.example .mcp.json     # so se for usar o trvl
+cp .mcp.json.example .mcp.json
 ```
 
-Se o binario do trvl nao estiver no PATH, troque `trvl` pelo caminho absoluto da
-sua maquina. O `.mcp.json` e ignorado pelo git justamente porque esse caminho e
-pessoal.
+Se o computador nao achar o trvl, troque `trvl` no arquivo pelo caminho completo
+de onde ele esta instalado. Esse arquivo fica so no seu computador, porque o
+caminho e diferente em cada maquina.
 
-O comando `/plugin` do toolkit **nao existe em todos os ambientes** — na extensao
-do VSCode ele responde `isn't available in this environment`. O `BACKLOG.md`, item
-0.1, registra a instalacao manual que funciona, incluindo a armadilha de symlink
-no Windows e o `enabledPlugins` do `settings.json`, que e o que de fato liga o
-plugin.
+O comando `/plugin` nao existe em todo lugar - na extensao do VS Code, por
+exemplo, ele nao funciona. O [`BACKLOG.md`](BACKLOG.md), item 0.1, explica como
+instalar na mao.
 
-A licenca do trvl vincula o uso do trvl, nao este repositorio.
+## O que ainda nao esta pronto
 
-## Estado
+- **Vacina:** so cinco destinos estao preenchidos, a partir da lista da
+  Organizacao Mundial da Saude de 2022.
+- **Seguro viagem:** nenhum destino. So achei afirmacoes de sites que vendem
+  seguro, que se contradizem. Seguro so entra com fonte oficial.
+- **Prazo de visto e de passaporte:** variam demais para ter um numero geral.
+  Aparecem como "nao apurado" no calendario, de proposito, em vez de sumir.
+- **Lista de vistos:** a fonte parou de ser atualizada em 01/03/2026. Serve para
+  uma primeira olhada; para decidir uma compra, confirme no consulado do pais.
+- **Taxa de hotel e regra de escala:** cobrem poucos paises, e as regras ainda nao
+  foram conferidas no texto oficial de cada governo.
+- **Taxa do seu banco:** o projeto usa um valor padrao chutado. Hoje e a maior
+  fonte de erro do total, porque o imposto ficou igual para todas as formas de
+  pagamento e a taxa do banco virou o que faz diferenca.
+- **Tendencia de preco da passagem:** so aparece depois de alguns dias guardando
+  precos. Ela cresce cada vez que alguem roda `trvl watch check`.
 
-Rascunho honesto. O que **nao** esta pronto:
+O [`BACKLOG.md`](BACKLOG.md) tem a lista completa e a ordem de trabalho.
 
-- `dados/vacina.json` cobre so cinco destinos (pela lista da OMS de 2022), e
-  `dados/seguro.json` esta vazio: nao ha fonte oficial que ache, so blog de
-  corretora. Os dois preenchem sob demanda, por destino, com fonte e data.
-- Prazos de visto e passaporte nao apurados; o do certificado de vacina tem o da
-  dose (10 dias, regra internacional) e um teto nao verificado para a emissao.
-  Prazo desconhecido aparece no calendario como desconhecido, de proposito, em vez
-  de sumir.
-- `dados/taxa-turistica.json` e `dados/transito.json` (o que brasileiro precisa
-  para fazer escala) cobrem poucos paises, e nenhum foi lido no texto oficial -
-  estao marcados como nao verificados.
-- A tendencia de preco do `veredito.py` vem do historico dos alertas do trvl, que
-  so cresce nos dias em que alguem roda `trvl watch check`.
-- A fonte de visto **congelou**. O `passport-index` nao e atualizado desde
-  01/03/2026, e o repositorio canonico da categoria esta ainda mais atrasado —
-  nao ha dataset gratuito de visto sendo mantido. A confianca do dado caiu para
-  `baixa`: ele serve de triagem para varrer 199 destinos, nunca para decidir uma
-  compra. Para um destino especifico, o que vale e o consulado, registrado em
-  `dados/visto-ressalvas.json`.
-- Spread do banco ainda e o padrao chutado do script. Como o IOF ficou igual nos
-  tres meios de pagamento desde 2025, e o spread que decide — entao esse chute e
-  hoje a maior fonte de erro do total.
-- Nenhuma skill passou por eval.
+## Palavras que aparecem aqui
 
-O [`BACKLOG.md`](BACKLOG.md) tem a ordem pensada para resolver isso.
+| Palavra | O que e |
+|---|---|
+| IOF | imposto federal cobrado quando voce troca real por moeda estrangeira. Hoje e 3,5% no cartao, no dinheiro vivo e na conta global |
+| spread | a margem que o banco ou a casa de cambio cobra por cima da cotacao oficial |
+| PTAX | a cotacao oficial do dolar e de outras moedas, publicada pelo Banco Central |
+| conta global | conta em moeda estrangeira, de bancos digitais, que costuma ter spread menor |
+| CIVP | o certificado internacional de vacina, pedido por paises que exigem febre amarela |
+| eTA / e-visa | autorizacao de entrada pedida pela internet antes da viagem |
+| escala ou conexao | a parada num aeroporto no meio do caminho, para trocar de aviao |
+| bilhete separado | quando os voos de uma mesma viagem sao comprados em bilhetes diferentes. Se o primeiro atrasar e voce perder o segundo, a companhia do segundo nao tem obrigacao de ajudar |
 
 ## Licenca
 
-[MIT](LICENSE).
+[MIT](LICENSE): uso livre.

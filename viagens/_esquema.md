@@ -1,173 +1,186 @@
-# Esquema de `viagens/<destino>-<ano-mes>.json`
+# Como preencher o arquivo da sua viagem
 
-Corrigido em 09/09/2026 pelo primeiro uso real (item 0.4 do backlog), como
-estava previsto. O que a viagem da China ensinou esta marcado abaixo.
+Cada viagem e um arquivo em `viagens/`, com nome no formato
+`destino-ano-mes.json` (por exemplo, `portugal-2027-05.json`). Tudo o que os
+comandos do projeto sabem sobre a viagem vem desse arquivo.
 
-O formato existe para servir ao `consolidar.py`: cada bloco de custo vira uma
-linha do total em reais. Se um campo nao ajuda a consolidar nem a lembrar de uma
-decisao, ele nao pertence a este arquivo.
+Para comecar, copie [`_modelo.json`](_modelo.json). Para ver um arquivo
+completo, abra [`exemplo-lisboa-2027-03.json`](exemplo-lisboa-2027-03.json).
 
-## Regras que valem para todo bloco de custo
+O arquivo e escrito em JSON, um formato de texto com chaves e valores. Tres
+cuidados bastam: texto vai entre aspas (`"Lisboa"`), numero vai sem aspas (`2`),
+e datas seguem sempre o formato ano-mes-dia (`"2027-05-10"`).
 
-**`moeda: "BRL"` significa "ja pago em real", e ai nao ha conversao nem IOF.**
-Passagem comprada em reais numa agencia brasileira e o caso comum. Tratar tudo
-como moeda estrangeira infla o total com um imposto que nao foi cobrado.
+Este guia vai do mais importante ao mais especifico. Os campos marcados como
+**obrigatorio** precisam estar la; os outros voce acrescenta quando fizer
+sentido.
 
-**`por_pessoa`** diz se o valor multiplica por `viajantes`. Errar isso e o erro
-mais caro do arquivo, entao ele e obrigatorio em todo bloco de custo.
+## 1. Os dados gerais da viagem
 
-**`valor: null` significa "conhecido, ainda sem preco"** — nao significa
-zero e nao significa inexistente. A linha continua aparecendo, em secao propria, e
-o total passa a se chamar PARCIAL. Foi a licao mais cara do primeiro uso real: a
-viagem da China guardava o orcamento fora de `custos[]`, o script somou a lista
-vazia e imprimiu **TOTAL R$ 0,00 com codigo de saida 0**. Numero errado que sai
-calado e pior que erro, e a linha que costuma faltar — a passagem — e justamente
-40-60% do orcamento. Hoje `custos` vazio e erro, e linha sem preco e piso
-declarado. Mesma decisao que o `prazos.py` tomou para prazo nao apurado.
+| Campo | O que colocar | Exemplo |
+|---|---|---|
+| `destino.cidade` | a cidade, so para voce ler | `"Lisboa"` |
+| `destino.pais` | a sigla de duas letras do pais | `"PT"` |
+| `datas.ida` e `datas.volta` | os dias de ida e de volta | `"2027-03-10"` |
+| `viajantes` | quantas pessoas vao | `2` |
+| `moeda_local` | a sigla da moeda do pais | `"EUR"` |
+| `meio_pagamento` | como voce vai pagar la fora: `"cartao_credito"`, `"moeda_especie"` ou `"conta_global"` | `"cartao_credito"` |
+| `spread` | a taxa do **seu** banco, em decimal (4% e `0.04`). Deixe `null` para usar um valor padrao, que e um chute | `0.04` |
 
-Com `valor: null`, use `estimativa` (texto, a faixa que voce ainda nao cotou) e
-`quando_cotar` (quando da para fechar). Os dois so aparecem na secao de sem preco.
+## 2. Os custos: tudo que custa dinheiro
 
-**Todo custo mora em `custos[]`.** Guardar valor em qualquer outro campo cria uma
-segunda contabilidade que nenhuma ferramenta le. Na China havia tres: `custos` (vazio),
-`orcamento.linhas_brl` (a que se lia) e valores soltos em `upgrades` e
-`antes_de_embarcar` — valores que nao entravam em soma nenhuma. Razao e decisao vao
-para `decisoes[]`; dinheiro vem para ca.
+Todo gasto da viagem fica numa lista chamada `custos`. Cada item da lista e uma
+linha do total. **Se um valor nao esta aqui, ele nao entra na conta** - nenhum
+comando procura dinheiro em outro lugar do arquivo.
 
-**`noites`** e opcional e so faz sentido em linha de hospedagem. Quando presente, e
-conferido contra a soma das noites do roteiro. Deixar a contagem so no texto do
-item (`"Hospedagem, 9 noites"`) nao serve: ler dali seria interpretar prosa, e
-prosa que nao se confere e a origem de todos os defeitos que esta conferencia
-procura. Sem o campo, a hospedagem simplesmente nao e conferida — e o relatorio diz
-isso, em vez de calar.
-
-**`conexoes`** e opcional, em linha de voo: a lista dos aeroportos de conexao, em
-codigo IATA (`["ORD"]`), ou objetos quando so uma delas e por conta propria
-(`[{"aeroporto": "LHR", "por_conta_propria": true}]`). `por_conta_propria: true` na
-linha vale para todas. O `conferir.py` cruza o pais de cada conexao com
-`dados/transito.json` e acusa a que exige documento fora de `documentos.tem`.
-Bilhete separado passa pela imigracao para despachar a mala, entao a regra que vale
-e a de entrada, nao a de transito.
-
-Linha com conexao por conta propria declara **`margem_conexao`**:
-`{"minutos": 240, "minima": 180, "fonte": "..."}` - a margem do itinerario, a minima
-recomendada para o aeroporto e de onde ela veio. Sem `minutos` e `fonte`, o
-`conferir.py` acusa; com `minutos` abaixo de `minima`, tambem. Nao ha numero
-generico no codigo: a minima varia com terminal e imigracao.
-
-Linha com **`cidade_oculta: true`** declara **`bagagem_despachada: false`**. A mala
-despachada vai para o destino final do bilhete, nao para onde se desce, e o
-silencio aqui e acusado.
-
-**`documentos.tem`** e a lista do que os viajantes ja tem, no formato
-`"visto:US"`, `"eta:GB"`, `"eta:CA"`. Vazio ou ausente e "nada alem do passaporte".
-
-**`taxa_turistica`** e opcional, em linha de hospedagem: `"inclusa"` (o preco ja
-traz a taxa da cidade ou do pais) ou `"separada"` (ha linha propria para ela). Sem
-o campo, o `consolidar.py` procura a taxa do destino em `dados/taxa-turistica.json`,
-**soma uma estimativa e avisa**. Somar calado contaria duas vezes quando o preco
-ja inclui; nao somar seria o preco de vitrine. A taxa e de onde se dorme: a linha
-pode levar `cidade`, que vence `destino.cidade` em viagem por varias cidades.
-
-**`consultado_em`** e obrigatorio em linha com preco. Preco de passagem de tres semanas atras nao e
-preco, e lembranca — o `consolidar.py` avisa quando a cotacao envelheceu.
-
-**`volatilidade`** e opcional e diz quanto tempo aquele preco aguenta:
-`alta` (21 dias), `media` (60) ou `baixa` (180). Sem o campo, o `recotar.py`
-assume `alta` e **diz que assumiu** — nao ha chute calado.
-
-Ela existe porque o prazo unico produzia alarme constante. Tarifa aerea muda toda
-semana; uma reserva de imprevisto que voce mesmo arbitrou nao muda nunca. Com os
-dois vencendo em 21 dias, a lista de pendencias fica sempre cheia, e lista que
-esta sempre vermelha ninguem le — o dia em que a passagem realmente venceu passa
-junto. Na viagem da China eram 6 linhas "vencidas" das quais nenhuma era tarifa.
-
-**`depende_da_janela_aerea`** e opcional e booleano. Marca a linha de passagem, e
-faz o `recotar.py` trocar a prosa do `quando_cotar` por uma data calculada: a
-janela real de venda da companhia, derivada de `datas`. Ver abaixo.
-
-**`tendencia`** e opcional e mora na linha de passagem. E o que o historico do
-alerta de preco da rota mostra (`trvl watch history <id>`), gravado para o
-`veredito.py` ler sem rede. Nao use o `forecast` do trvl: ele le outro historico,
-vazio, e devolve um neutro com cara de resposta (ver a skill `viagem`).
+Uma linha de custo, no minimo:
 
 ```json
-"tendencia": {"direcao": "caindo", "faixa": {"min": 3800, "max": 4600, "moeda": "BRL"},
-              "fonte": "trvl watch history <id>, 12 pontos", "consultado_em": "2026-10-30"}
+{"item": "Passagem ida e volta", "valor": 4200, "moeda": "BRL",
+ "por_pessoa": true, "consultado_em": "2026-08-28"}
 ```
 
-`direcao` e `subindo`, `estavel` ou `caindo`. `faixa` e a faixa historica, e so
-entra com fonte: faixa inventada da nota de oferta com cara de dado. Em moeda
-diferente da linha ela nao e comparada. Tendencia estraga no ritmo da tarifa, 21
-dias.
+| Campo | O que e |
+|---|---|
+| `item` | o nome do gasto. **Obrigatorio** |
+| `valor` | quanto custa. **Obrigatorio** - mas pode ser `null`, veja abaixo |
+| `moeda` | a moeda em que voce paga: `"BRL"`, `"EUR"`, `"USD"`... **Obrigatorio** |
+| `por_pessoa` | `true` se o valor e de cada pessoa (e sera multiplicado por `viajantes`); `false` se ja e o valor do grupo. **Obrigatorio** |
+| `consultado_em` | o dia em que voce viu esse preco. **Obrigatorio** quando ha preco |
 
-## O veredito, e por que o documento manda
+Tres regras que evitam os erros mais comuns:
 
-O `veredito.py` le cada linha de passagem e responde RESERVE, ESPERE, MUDE ou
-SEM VEREDITO, nomeando qual insumo decidiu. Tres insumos: a cotacao (viva pela
-`volatilidade`), a `tendencia`, e o limite do documento, que sai de
-`documentos.exige`.
+- **Pagou em reais? Use `"moeda": "BRL"`.** Ai nao ha conversao nem imposto de
+  cambio. E o caso de passagem comprada em reais numa agencia brasileira.
+- **Errar `por_pessoa` e o erro mais caro do arquivo.** Ele dobra o total, ou
+  corta pela metade, e o numero continua parecendo normal.
+- **Ainda nao sabe o preco? Use `"valor": null`.** Isso quer dizer "este gasto
+  existe, mas ainda nao tem preco" - nao quer dizer zero. A linha aparece numa
+  parte separada do relatorio e o total passa a se chamar **PARCIAL**, porque esta
+  faltando coisa. Junto, escreva `estimativa` (a faixa que voce imagina, em texto)
+  e `quando_cotar` (quando da para saber o preco).
 
-| Campo | Tipo | Nota |
+Uma lista de custos vazia e tratada como erro: um total de R$ 0,00 pareceria uma
+resposta.
+
+### Campos opcionais da linha de custo
+
+| Campo | Para que serve |
+|---|---|
+| `volatilidade` | quanto tempo o preco vale: `"alta"` (21 dias, como passagem), `"media"` (60) ou `"baixa"` (180). Sem ele, o projeto assume `"alta"` e avisa |
+| `depende_da_janela_aerea` | `true` na linha da passagem. Faz o projeto calcular quando a passagem comeca a ser vendida (veja a secao 6) |
+| `noites` | numero de noites, na linha de hospedagem. E conferido contra o roteiro |
+| `cidade` | a cidade da hospedagem, quando a viagem passa por varias |
+| `taxa_turistica` | na hospedagem: `"inclusa"` se o preco ja traz a taxa da cidade, ou `"separada"` se ela tem linha propria. Sem o campo, o projeto soma uma estimativa e avisa |
+| `tendencia` | na passagem: se o preco esta subindo, estavel ou caindo (secao 4) |
+
+### Se a passagem tem escalas
+
+Escala e a parada no meio do caminho para trocar de aviao. Alguns paises pedem
+visto **ate para quem so troca de aviao** - os Estados Unidos sao o caso mais
+comum. Por isso vale anotar onde estao as escalas:
+
+| Campo | O que colocar |
+|---|---|
+| `conexoes` | a lista de aeroportos da escala, pela sigla de tres letras: `["LIS"]` |
+| `por_conta_propria` | `true` se os voos foram comprados em **bilhetes separados** |
+| `margem_conexao` | para bilhete separado: o tempo que voce tem entre os voos, o minimo recomendado para aquele aeroporto e de onde veio esse minimo: `{"minutos": 240, "minima": 180, "fonte": "..."}` |
+| `cidade_oculta` | `true` se voce vai descer na escala e nao pegar o ultimo voo do bilhete |
+| `bagagem_despachada` | na cidade oculta, `false`, para confirmar que voce vai so com mala de mao |
+
+Por que tanto cuidado:
+
+- **Bilhete separado nao tem protecao.** Se o primeiro voo atrasar e voce perder o
+  segundo, o problema e seu. E voce passa pela imigracao do pais da escala para
+  despachar a mala de novo, entao vale a regra de **entrada** daquele pais.
+- **Na cidade oculta, a mala despachada vai para o destino final do bilhete**, e
+  nao para onde voce desce.
+
+O `conferir.py` avisa quando uma escala pede um documento que voce nao anotou ter
+(veja `documentos.tem` na secao 3), quando falta a margem do bilhete separado e
+quando a cidade oculta nao diz como fica a mala.
+
+## 3. Os documentos
+
+O bloco `documentos` guarda o que a viagem exige e o que voce ja tem.
+
+| Campo | O que colocar |
+|---|---|
+| `visto` | o que a skill `documentos-br` respondeu, em texto |
+| `exige` | a lista do que precisa ser providenciado **antes** da viagem: `"visto"`, `"civp"` (certificado de vacina) e `"eta"` (autorizacao pela internet). `[]` quer dizer "nada a providenciar". Sem o campo, o projeto entende que ainda nao foi verificado |
+| `prazos` | quanto tempo cada documento leva **neste destino**, quando voce descobriu no consulado: `{"visto": {"dias": 45, "fonte": "consulado", "consultado_em": "..."}}` |
+| `tem` | o que os viajantes ja tem: `["visto:US"]` (visto americano), `["eta:GB"]`, `["eta:CA"]`. Vazio quer dizer "so o passaporte" |
+
+Atencao com a febre amarela: alguns paises pedem a vacina de **quem vem do
+Brasil**, mesmo sem pedir visto. Quando for o caso, coloque `"civp"` em `exige`.
+
+## 4. Comprar agora ou esperar
+
+O comando `veredito.py` olha cada passagem e responde **RESERVE**, **ESPERE**,
+**MUDE** ou **SEM VEREDITO**, dizendo o que decidiu. Ele usa tres informacoes:
+
+1. **Se o preco ainda vale** - pela data em `consultado_em` e pela `volatilidade`.
+2. **Para onde o preco esta indo** - pelo campo `tendencia`.
+3. **Ate quando da para decidir** - pelo prazo dos documentos em `exige`.
+
+O prazo do documento sempre manda. Se o preco esta caindo mas o visto precisa
+ser pedido logo, a resposta e RESERVE: esperar uma queda que chega depois do prazo
+do visto nao e economia. A espera so e indicada quando sobram mais de 14 dias
+ate esse prazo.
+
+Se faltar alguma das tres informacoes, a resposta e SEM VEREDITO, com a lista do
+que falta.
+
+A `tendencia` vem do historico de precos guardado pelo trvl (`trvl watch history`):
+
+```json
+"tendencia": {"direcao": "caindo",
+              "faixa": {"min": 3800, "max": 4600, "moeda": "BRL"},
+              "fonte": "trvl watch history <id>, 12 pontos",
+              "consultado_em": "2026-10-30"}
+```
+
+- `direcao` e `"subindo"`, `"estavel"` ou `"caindo"`.
+- `faixa` e o preco mais baixo e o mais alto ja vistos. So coloque se tiver de onde
+  tirou; sem fonte, deixe de fora.
+- A tendencia tambem envelhece: depois de 21 dias, ela precisa ser vista de novo.
+
+Nao use o comando `forecast` do trvl para isso: ele le outro historico, que fica
+vazio, e devolve uma resposta neutra que parece real.
+
+## 5. O roteiro, dia a dia
+
+O `roteiro` e a lista de onde voce esta em cada dia. Ha dois tipos de bloco:
+
+| Bloco | Campos | Quando usar |
 |---|---|---|
-| `documentos.exige` | lista | `visto`, `civp`, `eta` — os nomes do `requer` de `dados/prazos.json`. `[]` e resposta: nada a providenciar. `null` ou ausente: a `documentos-br` nao rodou |
-| `documentos.prazos` | objeto | prazo apurado para ESTE destino, que vence o generico: `{"visto": {"dias": 45, "fonte": "...", "consultado_em": "..."}}` |
+| estadia | `cidade`, `dias`, `noites`, `destaques` | onde voce dorme |
+| deslocamento | `trecho`, `dias`, `modo`, `duracao` | onde voce so passa, como um voo ou um trem. **Nao tem `noites`** |
 
-A ordem das regras e o ponto: **documento que nao sai a tempo decide sozinho**, e a
-tendencia caindo so vira ESPERE se sobram mais de 14 dias ate o limite do
-documento. Esperar uma queda que chega depois da fila do consulado nao e economia.
+`dias` conta a partir da ida: o dia 1 e o dia da ida. `"2-8"` quer dizer do dia 2
+ao dia 8, e `"8"` e so o dia 8. Nao escreva datas no roteiro - o projeto calcula a
+partir de `datas.ida`. Guardar a mesma informacao em dois lugares e o jeito mais
+facil de um deles ficar errado sem ninguem notar.
 
-Faltando um insumo, a resposta e SEM VEREDITO com a lista do que falta — todos de
-uma vez. O `exige` e separado do `visto` em prosa pelo mesmo motivo do `requer` do
-`prazos.json`: decisao que depende de ler frase muda quando alguem reescreve a
-frase.
+`dias` diz **onde** o bloco fica; `noites` diz **quantas** noites voce dorme ali.
+Sao informacoes diferentes, por isso as duas existem.
 
-## A janela de venda, e por que ela olha a volta
+Um deslocamento pode dividir o dia com uma cidade: sair de uma cidade e chegar em
+outra no dia 8 e normal. Duas **cidades** no mesmo dia, nao.
 
-Companhia poe voo a venda entre ~330 e ~361 dias antes da partida. Antes disso
-nao ha o que cotar, e buscador vazio nao significa "nao ha voo" — significa "ainda
-nao vendem".
+## 6. Quando a passagem comeca a ser vendida
 
-Quem manda e a **ponta mais distante**, nao a mais proxima. Multitrecho e um
-bilhete so: nao adianta a ida estar a venda se a volta nao esta. Conferido em
-22/09/2026 contra o Kiwi, com controle para separar "fora da janela" de "o backend
-falhou":
+As companhias aereas so vendem passagem de **11 a 12 meses antes** do voo. Antes
+disso, o site de busca vem vazio - e isso nao quer dizer que nao ha voo, quer
+dizer que ainda nao comecou a venda.
 
-| Trecho | Distancia | Resultado |
-|---|---|---|
-| ida de uma viagem real | 353 d | 15 opcoes — dentro |
-| volta da mesma viagem | 372 d | 0 opcoes — fora |
-| mesma volta, 252 d a frente | 252 d | 15 opcoes — controle: a rota existe |
+Numa ida e volta, quem manda e a **volta**: o bilhete e um so, entao nao adianta a
+ida estar a venda se a volta ainda nao esta. Com `depende_da_janela_aerea: true`
+na linha da passagem, o `recotar.py` calcula sozinho o dia em que a venda abre.
 
-O controle e o que transforma um zero ambiguo em resposta. Sem ele, `count: 0`
-tanto pode ser "nao esta a venda" quanto "nao consegui perguntar", e os dois pedem
-acoes opostas.
+## 7. As cotacoes guardadas
 
-## Campos
-
-| Campo | Tipo | Nota |
-|---|---|---|
-| `destino.cidade` | texto | so para leitura humana |
-| `destino.pais` | ISO-2 | e o que a `documentos-br` consome |
-| `datas.ida` / `datas.volta` | AAAA-MM-DD | `ida` alimenta o `prazos.py` |
-| `viajantes` | inteiro | multiplicador dos blocos `por_pessoa` |
-| `moeda_local` | ISO-3 | moeda do gasto no destino; e nela, e so nela, que a sobretaxa do destino incide |
-| `meio_pagamento` | `cartao_credito` \| `moeda_especie` \| `conta_global` | escolhe a linha de IOF e spread |
-| `spread` | decimal | o do SEU banco. `null` usa o padrao do script, que e chute |
-| `custos[]` | lista | cada item vira uma linha do total |
-| `documentos` | objeto | o que a `documentos-br` apurou, com a data |
-| `decisoes[]` | lista | por que voce escolheu o que escolheu |
-| `roteiro[]` | lista | onde voce esta em cada dia: estadia ou deslocamento |
-| `datas_bloqueadas[]` | lista | o recorte conferivel das decisoes que travam uma data |
-| `itens_com_prazo[]` | lista | o que precisa ser comprado ou reservado com antecedencia |
-
-`decisoes` nao entra em conta nenhuma. Existe porque planejamento de viagem
-acontece em varias conversas ao longo de semanas, e sem registrar o porque, a
-sessao seguinte refaz a mesma pesquisa e as vezes chega a outra conclusao.
-
-## `orcamento.cotacoes` — a taxa que a conferencia usa sem rede
-
-Mapa de `moeda` para reais por unidade, com a data em que foi registrada.
+O bloco `orcamento.cotacoes` guarda quanto vale cada moeda em reais, com a data:
 
 ```json
 "orcamento": {
@@ -176,101 +189,60 @@ Mapa de `moeda` para reais por unidade, com a data em que foi registrada.
 }
 ```
 
-Existe porque a conferencia **nao acessa a rede**: ela precisa falhar por
-inconsistencia, nunca por internet fora do ar. O `consolidar.py` busca cotacao ao
-vivo e continua sendo quem fecha o total; a conferencia so quer saber se a faixa
-que o arquivo declara bate com as linhas que ele tem.
+Ele existe porque o `conferir.py` trabalha sem internet. O total de verdade, com a
+cotacao do dia, quem calcula e o `consolidar.py`. Se faltar a cotacao de uma
+moeda, o relatorio avisa qual linha ficou de fora, em vez de inventar um valor.
 
-Sem cotacao para uma moeda, a linha fica **de fora da faixa e e nomeada**, e o
-relatorio diz quanto do total ficou coberto. Chutar uma taxa ausente produziria uma
-faixa com cara de conta fechada, que e o defeito que originou esta conferencia.
+## 8. Datas travadas
 
-`cotacoes_em` importa: taxa de tres semanas atras nao e taxa, e lembranca.
+Quando voce decide nao fazer algo num dia - por exemplo, nao viajar num feriado -,
+anote em `datas_bloqueadas`. Assim o `conferir.py` avisa se o roteiro acabar
+marcando algo nesse dia.
 
-## `roteiro[]` — onde voce esta em cada dia
-
-Duas formas de bloco, e a diferenca entre elas e o que separa estar de passar:
-
-| Bloco | Campos | Nota |
-|---|---|---|
-| estadia | `cidade`, `dias`, `noites`, `destaques[]` | onde voce dorme |
-| deslocamento | `trecho`, `dias`, `modo`, `duracao` | onde voce so passa; **nao tem `noites`** |
-
-`dias` e o intervalo de dias ordinais contados da ida: dia 1 e a ida, `"2-8"` sao
-os dias 2 a 8, `"8"` e so o dia 8. As datas saem dai mais `datas.ida`; nenhuma data
-ISO e escrita no roteiro, porque dois campos dizendo a mesma coisa e exatamente o
-defeito que a conferencia procura.
-
-**`dias` localiza, `noites` conta.** Nao e redundancia, e divisao de papel — e ela
-existe porque nenhuma convencao de intervalo fecha para os quatro blocos da primeira viagem real ao mesmo tempo. Com `fim - inicio + 1`, tres batem e o
-quarto da 5 contra as 4 declaradas. Se a contagem saisse de `dias`, o leitor teria
-de escolher uma convencao, e a convencao escolhida silenciaria justo a divergencia
-que precisa aparecer.
-
-Bloco de deslocamento pode dividir o dia com a cidade vizinha — sair de uma cidade no
-dia 8 e chegar na seguinte no dia 8 e o normal de um dia de viagem. Duas **cidades** no
-mesmo dia, nao.
-
-## `datas_bloqueadas[]` — a decisao virando dado
-
-Uma decisao que trava uma data continua sendo escrita em `decisoes[]`, em prosa,
-com o porque inteiro. `datas_bloqueadas[]` e o **recorte conferivel** dela: a mesma
-informacao, na forma que uma ferramenta consegue comparar com o roteiro.
-
-| Campo | Tipo | Nota |
-|---|---|---|
-| `data` | AAAA-MM-DD | a data travada, uma entrada por dia |
-| `razao` | texto | curto, para caber no relatorio |
-| `decisao` | texto | a decisao de `decisoes[]` que travou esta data |
-
-`decisao` e obrigatorio. Bloqueio sem procedencia e indistinguivel de bloqueio
-inventado, e daqui a um ano ninguem lembra por que aquele dia estava travado.
-
-Os tres campos existem porque **prosa nao se confere**. Na primeira viagem real,
-duas decisoes moveram um trem e um passeio para fugir de um feriado local,
-ficaram registradas, e o bloco `roteiro` continuou na data antiga por
-duas semanas — nao havia como nada alem de um leitor humano notar. Escrever a data
-duas vezes, uma para gente e uma para maquina, e o preco de a segunda existir.
+| Campo | O que colocar |
+|---|---|
+| `data` | o dia travado, no formato `"2027-05-01"`. Um item por dia |
+| `razao` | o motivo, curto |
+| `decisao` | o que voce decidiu por causa disso. **Obrigatorio**: sem ele, daqui a um tempo ninguem lembra por que o dia estava travado |
 
 ```json
 "datas_bloqueadas": [
   {"data": "2027-05-01", "razao": "Feriado nacional, atracoes lotadas",
-   "decisao": "Trem entre as duas cidades movido para o dia seguinte"},
-  {"data": "2027-05-02", "razao": "Feriado nacional, atracoes lotadas",
    "decisao": "Trem entre as duas cidades movido para o dia seguinte"}
 ]
 ```
 
-## `itens_com_prazo[]` — o que nao da para deixar para depois
+## 9. O que precisa ser comprado com antecedencia
 
-Item que so pode ser comprado numa janela fixa, contada da data da visita, declara
-`janela_dias`. Quem nao tem prazo fixo **nao declara o campo** — e a maioria.
+`itens_com_prazo` lista o que nao da para deixar para a ultima hora, como
+ingresso que esgota.
 
-| Campo | Tipo | Nota |
-|---|---|---|
-| `janela_dias` | inteiro | so quando o prazo e fixo e contado da data da visita |
-| `cidade` | texto | a cidade do roteiro onde o item acontece, para achar a data |
-| `critico` | booleano | item sem segunda chance: sem ele, nao entra |
-| `data_compra` | AAAA-MM-DD | opcional, e conferido contra a data derivada |
-| `dias_restritos` | lista | dias da semana em que o item nao funciona |
+| Campo | O que colocar |
+|---|---|
+| `item` | o nome |
+| `cidade` | a cidade do roteiro onde ele acontece |
+| `janela_dias` | so se a venda abre um numero fixo de dias antes da visita (por exemplo, `7`). Se nao ha prazo fixo, deixe sem |
+| `critico` | `true` se, sem ele, voce perde a atracao e nao ha plano B |
+| `data_compra` | opcional. Se voce anotar, o projeto confere se bate com a data calculada |
+| `dias_restritos` | dias da semana em que nao funciona |
 
-**Nao fixe `data_compra` a mao esperando que ela mande.** Ela existe para ser
-conferida, nao para ser fonte: a data que vale sai da visita menos a janela. Fixar
-a mao e o defeito — mudar o roteiro um dia move a visita, e a data fixa fica para
-tras calada. Na primeira viagem real ela estava fixada um dia depois da derivada,
-num ingresso que so vende nos 7 dias e sem o qual nao se entra.
-
-A opcionalidade nao e frouxidao, e o que os dados mostraram. Dos quatro itens da
-primeira viagem real com prazo, so um tem janela fixa: um ingresso de museu,
-`"exatamente 7 dias antes"`. Hospedagem e `"a partir de outubro/2026"`, o guia e
-`"algumas semanas antes"` — janelas abertas, que nao viram conta. Obrigar
-`janela_dias` neles produziria numero inventado, e numero inventado num campo de
-prazo e pior que campo vazio.
-
-`critico` separa o que arruina a viagem do que so incomoda. Ingresso de museu que so vende online e so nos 7 dias: sem reserva, nao entra, e nao ha plano B
-no dia. Hotel tem sempre outro hotel.
+Nao use `data_compra` para mandar na data. O projeto calcula a data certa a partir
+do roteiro; se o roteiro mudar, a data calculada muda junto, e a anotada a mao
+ficaria para tras.
 
 ```json
 {"item": "Ingresso do museu", "janela_dias": 7,
  "cidade": "Cidade A", "critico": true}
+```
+
+## 10. Suas decisoes
+
+`decisoes` e uma lista de frases explicando **por que** voce escolheu o que
+escolheu. Nao entra em nenhuma conta. Serve para que, semanas depois, voce (ou o
+Claude) nao refaca a mesma pesquisa do zero.
+
+```json
+"decisoes": [
+  "Marco em vez de julho: a passagem estava bem mais barata fora da alta temporada."
+]
 ```
