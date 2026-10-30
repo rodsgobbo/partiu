@@ -1,0 +1,41 @@
+{
+  "dado": "o que passaporte brasileiro precisa para FAZER CONEXAO num pais, que nao e o mesmo que entrar nele",
+  "verificado": false,
+  "consultado_em": "2026-10-30",
+  "pendencia": "Regras lidas em resumos de busca que citam a fonte oficial, nao no texto oficial aberto: FAM 9 FAM 402.4 (EUA), IRCC (Canada), Home Office (Reino Unido), SRE (Mexico). Conferir no site oficial antes de comprar passagem com conexao nesses paises.",
+  "nota": "O conferir.py le este arquivo. Pais que nao esta aqui cai na regra de ENTRADA do passport-index: sem visto na entrada, a conexao passa; com visto na entrada, a conexao e acusada como 'regra de transito nao apurada' - nunca liberada no escuro. `airside` e conexao com bilhete unico sem sair da area internacional; `conta_propria` e bilhete separado ou cidade oculta, em que se passa pela imigracao para despachar a mala de novo - e ai vale a regra de entrada. `exige_um_de` usa os nomes de `documentos.tem` no arquivo de viagem.",
+  "por_pais": {
+    "US": {
+      "airside": {"exige_um_de": ["visto:US"]},
+      "conta_propria": {"exige_um_de": ["visto:US"]},
+      "nota": "Nao existe conexao sem visto nos EUA: o programa Transit Without Visa esta suspenso por tempo indeterminado. Serve visto C-1 de transito ou o B1/B2 de turista.",
+      "fonte": "https://fam.state.gov/fam/09FAM/09FAM040204.html",
+      "consultado_em": "2026-10-30",
+      "reconferir_em": "2027-04-30"
+    },
+    "MX": {
+      "airside": {"exige_um_de": ["visto:MX"]},
+      "conta_propria": {"exige_um_de": ["visto:MX"]},
+      "nota": "Desde 22/10/2023 brasileiro em transito pelo Mexico precisa de visto. Desde 05/02/2026 voltou a existir visto eletronico, um por entrada - conexao de ida e de volta sao duas entradas.",
+      "fonte": "https://embamex.sre.gob.mx/suiza/images/pdf/Formatos_Consulares/Folleto_Visa_Electronica_brasileos_ES_EN_FR_DE.pdf",
+      "consultado_em": "2026-10-30",
+      "reconferir_em": "2027-02-28"
+    },
+    "CA": {
+      "airside": {"exige_um_de": ["visto:CA", "eta:CA"]},
+      "conta_propria": {"exige_um_de": ["visto:CA", "eta:CA"]},
+      "nota": "Brasileiro so pode pedir eTA (em vez de visto) se teve visto canadense nos ultimos 10 anos ou tem visto americano valido, e o eTA vale para voar ate o Canada ou fazer conexao la. Sem isso, visto.",
+      "fonte": "https://ircc.canada.ca/ftp/eta/pdf/factsheet-feuilleinfo/eTA-Brazil_Factsheet_Lo-Res_EN.pdf",
+      "consultado_em": "2026-10-30",
+      "reconferir_em": "2027-04-30"
+    },
+    "GB": {
+      "airside": {"livre": true},
+      "conta_propria": {"exige_um_de": ["eta:GB"]},
+      "nota": "Isencao TEMPORARIA de ETA para quem fica no lado de dentro e nao passa pela fronteira, na pratica Heathrow e Manchester; 'em revisao'. Gatwick ou despachar a mala de novo exigem ETA.",
+      "fonte": "https://www.bal.com/perspectives/bal-news/united-kingdom-temporary-eta-exemption-for-airside-transit",
+      "consultado_em": "2026-10-30",
+      "reconferir_em": "2027-01-31"
+    }
+  }
+}

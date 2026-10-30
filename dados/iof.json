@@ -1,7 +1,7 @@
 {
   "dado": "aliquotas de IOF sobre operacoes de cambio, pessoa fisica",
   "verificado": true,
-  "consultado_em": "2026-08-28",
+  "consultado_em": "2026-10-30",
   "fonte_primaria": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2007/decreto/d6306.htm",
   "norma": "Decreto 6.306/2007, Art. 15-B, com redacao do Decreto 12.499/2025",
   "aliquotas": {
@@ -40,7 +40,8 @@
   "status_juridico": {
     "estavel": false,
     "motivo": "A decisao de 16/07/2025 e CAUTELAR, monocratica. O Plenario do STF ainda vai referendar, em data nao definida. Se o Plenario divergir, as aliquotas mudam e este arquivo fica errado.",
-    "reconferir_em": "2026-11-28",
+    "reconferir_em": "2027-01-31",
+    "reconferencias": ["2026-10-30: Art. 15-B no Planalto segue com 3,5% nos incisos VII, IX, X, XX e XXIV, redacao do Decreto 12.499/2025, sem decreto de 2026. Busca nao achou julgamento de merito ou referendo da ADC 96; o portal do STF nao entrega o andamento sem JavaScript, entao a ausencia e de busca, nao confirmada no processo."],
     "onde_conferir": "https://noticias.stf.jus.br e a pagina do Decreto 6.306 no Planalto, que mostra as camadas de alteracao"
   },
   "fontes_secundarias_consultadas": [

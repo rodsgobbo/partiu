@@ -38,7 +38,7 @@ def custo(item="X", valor=100, dias_atras=0, **extra):
 
 
 def test_janela_fechada_quando_so_a_volta_esta_fora():
-    v = viagem("2027-09-10", "2027-09-29", [])      # 353d e 372d
+    v = viagem("2027-09-01", "2027-09-20", [])      # 344d e 363d
     j = recotar.janela_aerea(v, HOJE)
     assert j["aberta"] is False, "a ida dentro nao pode abrir o bilhete inteiro"
 
@@ -50,9 +50,9 @@ def test_janela_aberta_com_as_duas_pontas_dentro():
 
 def test_abertura_sai_da_ponta_mais_distante():
     """A volta e a ultima a entrar a venda, entao e ela que define a data."""
-    v = viagem("2027-09-10", "2027-09-29", [])
+    v = viagem("2027-09-01", "2027-09-20", [])
     j = recotar.janela_aerea(v, HOJE)
-    assert j["abre_em"] == date(2027, 9, 29) - timedelta(days=recotar.JANELA_AEREA_DIAS)
+    assert j["abre_em"] == date(2027, 9, 20) - timedelta(days=recotar.JANELA_AEREA_DIAS)
 
 
 def test_sem_datas_nao_inventa_janela():
@@ -102,13 +102,13 @@ def test_sem_volatilidade_assume_alta_e_denuncia_o_chute():
 
 
 def test_passagem_fora_da_janela_aguarda_com_data_calculada():
-    v = viagem("2027-09-10", "2027-09-29",
+    v = viagem("2027-09-01", "2027-09-20",
                [custo("Passagem", valor=None, depende_da_janela_aerea=True,
                       quando_cotar="rebuscar toda semana")])
     agora, aguardando, _, _ = recotar.classificar(v, HOJE)
     assert agora == [], "nao da para cotar bilhete que nao esta a venda"
     item, motivo = aguardando[0]
-    assert "2026-10-03" in motivo, "a espera tem de vir com data, nao com prosa"
+    assert "2026-09-24" in motivo, "a espera tem de vir com data, nao com prosa"
 
 
 def test_sem_preco_e_sem_quando_cotar_e_tarefa_de_hoje():

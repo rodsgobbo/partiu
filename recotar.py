@@ -37,9 +37,9 @@ VENCE_EM = 21
 #
 # Conferido em 22/09/2026 contra o Kiwi, com controle para separar "nao esta a
 # venda" de "o backend falhou":
-#   GRU->PEK  10/09/2027  353d  -> 15 opcoes   (dentro)
-#   PVG->GRU  29/09/2027  372d  -> 0 opcoes    (fora)
-#   PVG->GRU  01/06/2027  252d  -> 15 opcoes   (controle: a rota existe)
+#   ida de uma viagem real    353d  -> 15 opcoes   (dentro)
+#   volta da mesma viagem     372d  -> 0 opcoes    (fora)
+#   mesma volta, mais cedo    252d  -> 15 opcoes   (controle: a rota existe)
 JANELA_AEREA_DIAS = 361
 
 # Quanto tempo um preco aguenta, por volatilidade declarada na linha de custo.

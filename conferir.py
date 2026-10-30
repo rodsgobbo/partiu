@@ -17,7 +17,7 @@ Uso:
     python conferir.py viagens/x.json     # confere um arquivo
     python conferir.py --quieto           # so o codigo de saida, para hook ou CI
 """
-import argparse, json, re, sys
+import argparse, csv, json, re, sys
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -635,12 +635,131 @@ def sobretaxa_chegou_no_orcamento(v: dict) -> list:
     return [d]
 
 
+# --- checagens de documento -------------------------------------------------
+# Buscador devolve rota barata com conexao em Chicago ou Toronto sem saber que
+# brasileiro precisa de visto ate para trocar de aviao la. A armadilha estava
+# escrita no AGENTS.md, e prosa depende de alguem ler.
+
+DADOS = RAIZ / "dados"
+
+
+def dados_de_conexao():
+    """(aeroporto -> pais, regras de transito, regra de entrada por pais)."""
+    aeroportos = json.loads((DADOS / "aeroportos.json").read_text(encoding="utf-8"))
+    transito = json.loads((DADOS / "transito.json").read_text(encoding="utf-8"))
+    with (DADOS / "passport-index" / "br.csv").open(encoding="utf-8") as f:
+        entrada = {r["Destination"]: r["Requirement"] for r in csv.DictReader(f)}
+    return aeroportos["por_iata"], transito["por_pais"], entrada
+
+
+def entra_sem_nada(requisito: str) -> bool:
+    return requisito.isdigit() or requisito.lower() == "visa free"
+
+
+def conexoes_tem_documento(v: dict, dados=None) -> list:
+    """Conexao em pais que exige documento que a viagem nao declara ter.
+
+    `conexoes` mora na linha do voo em `custos[]`: codigo IATA, ou objeto com
+    `por_conta_propria`. Bilhete separado passa pela imigracao para despachar a
+    mala, entao vale a regra de entrada, nao a de transito. Pais sem regra de
+    transito apurada nunca passa no escuro: sem visto na entrada, passa; com,
+    e acusado como nao apurado.
+    """
+    linhas = [c for c in v.get("custos", []) if c.get("conexoes")]
+    if not linhas:
+        return []
+    aeroportos, transito, entrada = dados or dados_de_conexao()
+    tem = set((v.get("documentos") or {}).get("tem") or [])
+    destino = (v.get("destino") or {}).get("pais")
+    achados = []
+    for c in linhas:
+        for con in c["conexoes"]:
+            iata = con if isinstance(con, str) else con.get("aeroporto")
+            propria = c.get("por_conta_propria") or (
+                isinstance(con, dict) and con.get("por_conta_propria"))
+            campo = f"custos[{c.get('item', '?')}].conexoes.{iata}"
+            pais = aeroportos.get(iata)
+            if pais is None:
+                d = Divergencia("documento", campo, "aeroporto sem pais conhecido",
+                                (iata,))
+                d.correcao = "registrar o pais em dados/aeroportos.json."
+                achados.append(d)
+                continue
+            if pais in ("BR", destino):
+                continue    # entrada no destino e assunto da documentos-br
+            modo = "conta_propria" if propria else "airside"
+            regra = (transito.get(pais) or {}).get(modo)
+            if regra is None:
+                req = entrada.get(pais, "desconhecido")
+                if entra_sem_nada(req):
+                    continue
+                d = Divergencia("documento", campo,
+                                f"regra de transito em {pais} nao apurada, e a entrada "
+                                f"exige documento", (req,))
+                d.correcao = (f"apurar no consulado e registrar em dados/transito.json, "
+                              f"ou trocar a conexao.")
+                achados.append(d)
+                continue
+            exige = regra.get("exige_um_de") or []
+            if regra.get("livre") or tem.intersection(exige):
+                continue
+            jeito = "bilhete separado, passa pela imigracao" if propria else "conexao"
+            d = Divergencia("documento", campo,
+                            f"{jeito} em {pais} exige documento que a viagem nao declara",
+                            (" ou ".join(exige), f"documentos.tem: {sorted(tem) or 'vazio'}"))
+            d.correcao = (f"trocar a conexao, ou tirar o documento e declarar em "
+                          f"documentos.tem. Regra: {(transito[pais].get('nota') or '')[:90]}")
+            achados.append(d)
+    return achados
+
+
+def bilhete_separado_declara_o_risco(v: dict) -> list:
+    """Economia de bilhete separado ou cidade oculta sem o risco escrito ao lado.
+
+    Bilhete separado nao tem protecao: perder o segundo voo por atraso do primeiro
+    e prejuizo de quem viaja. Por isso a conexao por conta propria declara a margem
+    que tem e de onde tirou a minima do aeroporto - sem numero generico aqui, porque
+    ele varia com terminal e imigracao. Cidade oculta declara a bagagem: a mala
+    despachada vai para o destino final do bilhete, nao para onde se desce.
+    """
+    achados = []
+    for c in v.get("custos", []):
+        item = c.get("item", "?")
+        propria = c.get("por_conta_propria") or any(
+            isinstance(x, dict) and x.get("por_conta_propria")
+            for x in c.get("conexoes") or [])
+        if propria:
+            m = c.get("margem_conexao") or {}
+            if m.get("minutos") is None or not m.get("fonte"):
+                d = Divergencia("conexao", f"custos[{item}].margem_conexao",
+                                "bilhete separado sem margem de conexao declarada com fonte")
+                d.correcao = ("declarar {\"minutos\": N, \"fonte\": \"...\"}: a margem do "
+                              "itinerario e a minima recomendada do aeroporto. Sem protecao, "
+                              "o atraso do primeiro voo perde o segundo.")
+                achados.append(d)
+            elif m.get("minima") is not None and m["minutos"] < m["minima"]:
+                d = Divergencia("conexao", f"custos[{item}].margem_conexao",
+                                "margem abaixo da minima declarada para o aeroporto",
+                                (f"{m['minutos']} min", f"minima {m['minima']} min"))
+                d.correcao = "trocar o segundo voo, ou aceitar o risco por escrito em decisoes[]."
+                achados.append(d)
+        if c.get("cidade_oculta") and c.get("bagagem_despachada") is not False:
+            d = Divergencia("conexao", f"custos[{item}].bagagem_despachada",
+                            "cidade oculta sem declarar que vai so com bagagem de mao",
+                            (repr(c.get("bagagem_despachada")),))
+            d.correcao = ("a mala despachada vai para o destino final do bilhete. Declarar "
+                          "\"bagagem_despachada\": false, ou trocar de bilhete.")
+            achados.append(d)
+    return achados
+
+
 # Cada familia de checagem entra aqui. A lista existe para o relatorio saber a
 # diferenca entre "conferi e nao achei nada" e "nao conferi nada" - dizer "nada se
 # contradiz" sem ter olhado e o mesmo defeito do total que saia zero em silencio.
 FAMILIAS = [noites_fecham, hospedagem_bate_com_o_roteiro, roteiro_respeita_bloqueios,
             decisao_virou_dado, janela_de_compra_fecha, orcamento_fecha,
-            sobretaxa_chegou_no_orcamento]
+            sobretaxa_chegou_no_orcamento, conexoes_tem_documento,
+            bilhete_separado_declara_o_risco]
 
 
 def conferir(v: dict) -> list:

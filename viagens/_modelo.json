@@ -58,6 +58,7 @@
     "visto": "PREENCHER: o que a skill documentos-br apurou",
     "fonte_visto": "PREENCHER: qual fonte, com a data dela",
     "civp_exigido": null,
+    "exige": null,
     "seguro_obrigatorio": null,
     "consultado_em": "2027-01-15"
   },

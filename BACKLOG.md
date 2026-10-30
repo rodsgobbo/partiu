@@ -37,9 +37,17 @@ dois caminhos. Um `git pull` futuro briga com as junctions — refaca depois de
 atualizar.
 
 Dos 5 MCPs gratuitos, **4 subiram**: Skiplagged, Kiwi, Trivago, Ferryhopper. O
-**Airbnb falha** com `CONNECTION_CLOSED`: ele roda
+**Airbnb falhava** com `CONNECTION_CLOSED`: ele roda
 `npx -y @openbnb/mcp-server-airbnb@latest`, que baixa e executa o pacote sem pin de
-versao a cada partida. O LiteAPI aparece mas exige `LITEAPI_API_KEY`.
+versao a cada partida.
+
+**Resolvido em 30/10/2026, e nao era a versao.** O mesmo 0.3.0 chamado como
+`@0.3.0` respondia ao handshake; so `@latest` falhava. O npx guarda cada
+especificacao numa pasta de cache propria, e a do `@latest`
+(`%LOCALAPPDATA%\npm-cache\_npx\8adb39fdbfdc3b45`) tinha o `node-domexception`
+incompleto - so LICENSE, sem codigo -, de uma instalacao interrompida. Apagar a
+pasta resolveu; o npx refez sozinho. Se voltar: rode o servidor a mao, olhe o
+stderr, e procure "Cannot find package" antes de suspeitar da versao. O LiteAPI aparece mas exige `LITEAPI_API_KEY`.
 
 Nenhuma das 12 chaves esta configurada, entao a camada de **milhas e pontos — o
 motivo de instalar isto — segue inerte**. Sem Tier 1 (seats.aero, Duffel, ignav,
@@ -341,6 +349,233 @@ divisao por zero em `viajantes`, e crash opaco quando a aliquota e null.
 heredoc. Um so foi pego porque tinha `assert`; o outro porque conferi a saida em
 vez de aceitar "sem erro" como sucesso. Vale lembrar disso: neste ambiente,
 edicao de arquivo por heredoc precisa de verificacao explicita.
+
+## Marco 5 — as perguntas que faltam responder
+
+Levantado em 30/10/2026, cruzando o projeto com uma lista de 9 prompts de
+"economia em reserva" que circula por ai. As buscas ja existem nas ferramentas
+externas; o que falta e juntar o que elas devolvem numa resposta em reais, ou
+registrar dado que estraga. Nenhum item abaixo exige scraper. Os tres primeiros
+sao os de maior retorno; do 5.4 em diante, o que completa a lista.
+
+O que a lista nao pergunta e o projeto ja responde: **da para entrar no pais?**
+Documento continua vindo antes de preco.
+
+### 5.1 · Veredito de compra: RESERVE, ESPERE ou MUDE · M · **FEITO 30/10/2026**
+`veredito.py` na raiz, irmao do `recotar.py` e reaproveitando as funcoes dele.
+Campos novos e opcionais: `tendencia` na linha de passagem e `documentos.exige` /
+`documentos.prazos`, descritos em `viagens/_esquema.md`. Passo 7 da skill `viagem`.
+Testes em `tests/test_veredito.py`.
+
+Primeira rodada nas viagens reais: **nenhuma tem veredito**, e e a resposta certa.
+Nenhuma declara `documentos.exige` nem `tendencia`, e o exemplo de Lisboa tem
+cotacao de 63 dias. De quebra apareceu que a janela de venda de uma das viagens ja
+tinha aberto sem ninguem notar - o `recotar.py` dizia, mas ninguem rodou.
+
+Limite declarado: `MARGEM_DIAS = 14` e numero arbitrado, nao apurado.
+
+**Correcao no mesmo dia:** o texto original abaixo supoe que o `forecast` do trvl
+da a tendencia. Nao da: ele le `~/.trvl/deal-history.json`, que nada alimenta, e
+com 0/30 amostras devolve um neutro. A tendencia sai do `trvl watch history`,
+entao **o alerta tem de ser criado quando a janela abre** — historico nao se
+recupera depois.
+
+**Decidido em 30/10/2026: `watch check` manual, por enquanto.** Roda quando o
+usuario pedir — nada de hook. O custo e saber: historico cresce so nos dias em que
+alguem roda, entao a `tendencia` vai demorar a ter pontos. Se isso travar o
+veredito, o candidato e o hook SessionStart que ja atualiza o trvl uma vez por dia.
+
+```bash
+trvl watch check           # registra um ponto de preco em cada alerta
+trvl watch list            # os alertas e seus ids
+trvl watch history <id>    # o historico que vira `tendencia`
+```
+
+Texto original do item:
+
+Hoje as pecas estao soltas: `forecast` do trvl diz a tendencia, o `recotar.py`
+diz a idade da cotacao, o `prazos.py` diz quando o documento obriga a decidir.
+Ninguem junta as tres numa resposta. Vira passo da skill `viagem`, entre o
+conferir e o consolidar, com a regra explicita de que **prazo de documento vence
+tendencia de preco** — esperar uma queda que chega depois da data limite do visto
+nao e economia.
+Inclui a auditoria de oferta (prompt 4): preco atual contra a faixa historica que
+o `forecast` e o Trivago devolvem, sem nota de 1 a 10 inventada. Faixa sem fonte
+nao entra.
+**Pronto quando:** a skill produz o veredito com os tres insumos citados e datados,
+e diz qual deles decidiu; com um insumo faltando, o veredito diz isso em vez de
+decidir sem ele.
+
+### 5.2 · Taxas que o preco de vitrine esconde · M · **FEITO 30/10/2026**
+`dados/taxa-turistica.json` com tres destinos, cada taxa com vigencia, fonte e
+`reconferir_em`: **Lisboa** EUR 4/noite ate 7 noites (Edital 234/2024), **Turquia**
+1% ate 31/12/2026 e 2% depois (viagem em 2027 pega 2%, e varios guias ainda
+nao sabem da reducao), **Tailandia** taxa de entrada so proposta, THB 300-450, fora
+do total. Nenhuma lida no texto primario — o arquivo e `verificado: false` e diz
+por que.
+
+O `consolidar.py` soma a taxa **estimada e avisando** em toda hospedagem do destino
+que nao declare `taxa_turistica`. Diferente da sobretaxa, que entra calada: a
+sobretaxa nunca esta no preco, a taxa turistica as vezes esta, e so quem cotou
+sabe. Taxa percentual sobre hospedagem ainda sem preco avisa em vez de sumir —
+era o caso de uma viagem real. Testes em `tests/test_taxa_turistica.py`, verificados
+por mutacao.
+
+O exemplo de Lisboa sobe de R$ 25.696,81 para ~R$ 26.158 com a taxa: o nome da
+linha dizia "taxas inclusas", ambiguo no exato ponto deste item, e virou "IVA
+incluso".
+
+Texto original:
+A `cambio-br` cobre IOF e spread; taxa turistica por cidade, taxa de resort e
+taxa de limpeza nao estao em lugar nenhum. Taxa turistica e dado que estraga, entao
+mora em `dados/`, com fonte, `consultado_em` e `reconferir_em`, preenchida **sob
+demanda** pelos destinos que voce considera, como o 2.1. Taxa de resort e de
+limpeza sao da propriedade, nao da cidade: ficam como checagem na hospedagem, nao
+como tabela.
+**Pronto quando:** 3 destinos com taxa turistica datada em `dados/`, e o
+`consolidar.py` acusa linha de hospedagem num desses destinos sem a taxa
+correspondente — mesma forma da sobretaxa de pagamento do 3.4.
+
+### 5.3 · Bairro para se hospedar · P · **FEITO 30/10/2026**
+Secao "Onde se hospedar" na `roteiro-orcamento`. Aplicada numa viagem real, em
+Pequim: tres bairros em pontas opostas, diaria do trivago e deslocamento pela
+tabela oficial do metro. Resultado no arquivo da viagem.
+
+**O achado contradiz a premissa do item:** o deslocamento difere poucos reais entre
+os tres bairros na estadia inteira. Metro de CNY 3 a 5 nao decide bairro; quem decide e a
+diaria, e ela compara hotel, nao bairro. A skill agora manda fazer a conta antes de
+concluir que o bairro importa. Seguranca ficou de fora por falta de fonte oficial
+por bairro - exatamente a regra da secao.
+
+Texto original:
+Secao na `roteiro-orcamento`, nao skill nova: o bairro onde voce dorme muda o
+transporte de todos os dias do roteiro, entao a escolha so faz sentido junto dele.
+Compara 3 bairros pelo custo de deslocamento ate o que o roteiro ja tem, e nao por
+lista generica de "melhores bairros". Seguranca entra com fonte e data, ou nao
+entra.
+**Pronto quando:** a skill compara bairros pelo roteiro de uma viagem real, com o
+transporte diario em reais.
+
+### 5.4 · Visto de conexao conferido, nao lembrado · M · **FEITO 30/10/2026**
+Familia `documento` no `conferir.py`, com dois arquivos novos: `dados/aeroportos.json`
+(pais de ~60 aeroportos de conexao comuns) e `dados/transito.json` (regra de
+**conexao**, separada da de entrada, para EUA, Mexico, Canada e Reino Unido).
+Campos novos: `conexoes` na linha do voo e `documentos.tem`. Criterio de pronto
+coberto por teste: ORD sem visto americano sai 1 citando o trecho, LIS sai 0.
+
+Tres decisoes:
+1. **Pais sem regra de transito nunca passa no escuro.** Cai na regra de entrada do
+   passport-index: sem visto, passa; com visto, acusa como "nao apurada".
+2. **Aeroporto fora da tabela acusa**, em vez de ser ignorado.
+3. **Reino Unido muda conforme o bilhete:** conexao no lado de dentro dispensa ETA
+   (isencao temporaria); bilhete separado exige. Mexico pede visto ate em transito,
+   um por entrada - ida e volta com escala la sao duas.
+
+Nenhuma viagem atual declara `conexoes` ainda, entao a checagem existe e nao achou
+nada para conferir. Ela comeca a valer quando a passagem for gravada com a rota.
+
+Texto original:
+A armadilha mais cara do prompt 3 ja esta escrita no `AGENTS.md`: rota barata com
+conexao nos EUA ou no Canada exige visto americano ou eTA para brasileiro. Mas
+esta escrita em prosa, e prosa depende de alguem ler — o mesmo limite do achado 5
+do 3.1-a. Os voos em `custos[]` passam a levar os aeroportos de conexao, e o
+`conferir.py` cruza o pais de cada um com a `documentos-br`, acusando conexao
+que exige documento que a viagem nao tem.
+Vale tambem para conexao por conta propria (Kiwi, Skiplagged): ali o viajante
+**passa pela imigracao** para despachar a bagagem de novo, entao a exigencia e a de
+entrada, nao a de transito.
+**Pronto quando:** um voo com conexao em ORD num arquivo sem visto americano faz o
+`conferir.py` sair 1, citando o trecho; a mesma rota com conexao em LIS sai 0.
+
+### 5.5 · Margem de conexao por conta propria · P · **FEITO 30/10/2026**
+Foi alem de "regra na skill": virou a familia `conexao` do `conferir.py`, porque
+regra so em prosa e o defeito que o 5.4 acabou de consertar. Linha com conexao por
+conta propria precisa de `margem_conexao` com `minutos` e `fonte` (e acusa se
+`minutos` < `minima`); cidade oculta precisa de `bagagem_despachada: false`. A
+skill `viagem` manda dizer o risco antes do preco. Nenhum numero de margem minima
+no codigo: ele varia por aeroporto e entra com fonte na linha.
+
+Texto original:
+O resto do prompt 3. Bilhetes separados nao tem protecao: perder o segundo voo
+por atraso do primeiro e prejuizo do viajante, nao da companhia. Regra na skill
+`viagem`: conexao por conta propria so entra com margem minima declarada (a ser
+apurada por aeroporto, com fonte, porque varia entre terminal e imigracao), e a
+resposta diz em voz alta que a economia vem com esse risco. Bagagem despachada
+em cidade oculta (Skiplagged) nao funciona — a mala vai para o destino final do
+bilhete — e isso aparece antes do preco, nao depois.
+**Pronto quando:** a skill registra a margem e o risco ao lado do preco em toda
+rota de bilhetes separados ou de cidade oculta.
+
+### 5.6 · Aeroporto alternativo com o custo terrestre · M · **FEITO 30/10/2026**
+Secao "Aeroporto alternativo" na skill `viagem`: passagem mais terrestre, mesmo dia
+e mesma fonte, tempo extra ao lado, e `documentos-br` primeiro se o vizinho for
+outro pais. Aplicada numa volta real: o aeroporto vizinho, a ~1h de trem, saia
+~25% mais caro ja na passagem (Kiwi, 30/10/2026) - o terrestre nem precisou ser
+cotado.
+
+Dois achados de passagem: a opcao mais barata do aeroporto principal era **bilhete
+separado**, entao cai nas regras do 5.4 e do 5.5; e o trvl sugeriu esperar ate ~8
+semanas antes com base na janela de voo **curto europeu**, conselho que nao vale
+para longo curso. Dica de ferramenta nao e veredito - o veredito e do `veredito.py`.
+
+Texto original:
+Prompt 2. As ferramentas acham voo para aeroporto vizinho e o trvl cota o
+transporte terrestre (`search_ground`, `search_airport_transfers`), mas ninguem
+soma os dois em reais para comparar com o aeroporto principal. Passo da skill
+`viagem`: diferenca de passagem **menos** transporte terrestre ida e volta, por
+pessoa ou nao conforme o meio, e o tempo extra declarado. Se o aeroporto vizinho
+fica em outro pais, a `documentos-br` vale para ele tambem.
+**Pronto quando:** numa viagem real, a skill compara aeroporto principal e
+alternativo com o total em reais e o tempo extra, e diz qual compensa.
+
+### 5.7 · Hotel, apartamento ou albergue pelo custo total · M · **FEITO 30/10/2026, sem o Airbnb na sessao**
+Metodo na `roteiro-orcamento`: total = diaria x noites + limpeza + taxa turistica +
+a refeicao que cada tipo obriga a comprar fora. Aplicado numa viagem real, em
+Pequim, com o lado de apartamento vindo do trivago (filtro `kitchen`): hotel com
+cafe, apartamento com cozinha e albergue ficaram a menos de 3% um do outro. O
+albergue tinha a menor diaria e nao o menor total. Como no 5.3: em Pequim decide o
+hotel especifico, nao o tipo.
+
+O Airbnb voltou a responder (ver 0.1), mas so entra numa sessao nova. A comparacao
+fica completa quando rodar com ele; o metodo nao muda. O preco de mercado (CNY 10 por
+cafe) e suposicao declarada - o de restaurante tem fonte.
+
+Texto original:
+Prompt 7. A `compare-hotels` do toolkit compara diaria; a conta que falta e a
+**economia de ter cozinha**, que vem de `roteiro-orcamento` (gasto com refeicao
+por dia) e nao da hospedagem. Comparar pelo total — diaria, taxa de limpeza,
+taxas do 5.2 e refeicoes estimadas — e nao pela diaria.
+**Depende de consertar o Airbnb**, que segue falhando com `CONNECTION_CLOSED`
+(ver 0.1): sem ele, a comparacao fica sem o lado de apartamento. O conserto
+provavel e fixar a versao do `@openbnb/mcp-server-airbnb` em vez do `@latest`.
+**Pronto quando:** o Airbnb sobe, e uma viagem real tem as tres opcoes comparadas
+pelo total da estadia em reais.
+
+### 5.8 · Onde cortar: o passo de revisao do total · P · **FEITO 30/10/2026**
+O `consolidar.py` lista as 3 maiores linhas com a fatia do total ("onde o dinheiro
+esta"), e a skill `viagem` ganhou "Onde cortar": uma alavanca por tipo de linha,
+cada corte em reais e com fonte, sem meta fixa.
+
+Aplicado numa viagem real, e as respostas uteis foram "nao rende": a passagem era
+~80% do que tinha preco, e a data flexivel (+/-5 dias, Kiwi) **nao cortava** - a
+mais barata era a propria data. A revisao chegou a apontar que o preco gravado
+estava abaixo do de hoje; **errado, corrigido no mesmo dia**: o valor gravado era de
+outro mes, referencia de proporcao. Diferenca de data, nao aumento. A licao foi para
+a skill: antes de dizer que um preco subiu, confira se as duas cotacoes sao da mesma
+data. Meio de pagamento rendia poucas dezenas de reais, e cresce quando a
+hospedagem tiver preco.
+
+De quebra: `cambio.py --help` quebrava com `ValueError` (o `%` do spread no texto
+de ajuda). Corrigido, com teste.
+
+Texto original:
+Prompt 8. O `consolidar.py` ja fecha o total, separado por linha; o passo que falta
+e olhar para ele procurando corte. Na skill `viagem`, depois do consolidar: as 3
+maiores linhas, o que reduz cada uma (meio de pagamento pela `cambio-br`,
+aeroporto pelo 5.6, hospedagem pelo 5.7, data pelo 5.1) e quanto em reais. Sem
+meta fixa de 20%: corte que nao existe nao vira numero.
+**Pronto quando:** a skill entrega a revisao com cada corte em reais e de onde
+veio o numero.
 
 ## Extra, fora do backlog original
 
