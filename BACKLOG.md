@@ -68,7 +68,15 @@ Handshake MCP responde (protocolo 2025-11-25) e expoe **1 tool** (`travel`, ~1.5
 de schema) — a economia de contexto que o projeto promete se confirma.
 Falta so: reiniciar o Claude Code nesta pasta para o servidor aparecer conectado.
 
-### 0.3 · Rodar as 5 skills uma vez, a seco · P
+### 0.3 · Rodar as 5 skills uma vez, a seco · P · **FEITO 30/10/2026**
+Os scripts rodaram chamados pelo Claude, da raiz do repositorio, sem erro de
+caminho: `cambio.py` (cambio-br), `visto.py` e `prazos.py` (documentos-br) e
+`consolidar.py` (viagem). `dado-datado` e `roteiro-orcamento` nao tem script, entao
+nao tem caminho a resolver. Saiu um defeito de passagem, e nao de caminho: o
+`cambio.py --help` quebrava (ver 5.8). Se a skill **dispara** quando deveria e outra
+pergunta, e e a do 4.1.
+
+Texto original:
 So para ver se disparam e se os caminhos relativos dos scripts resolvem quando
 quem chama e o Claude, nao o terminal. **Pronto quando:** cada uma foi invocada ao
 menos uma vez sem erro de caminho.
