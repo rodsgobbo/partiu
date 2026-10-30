@@ -93,6 +93,12 @@ do anuncio, mais a refeicao que cada um obriga a comprar fora. Cafe incluso no h
 vale zero de refeicao; cozinha no apartamento troca refeicao de restaurante por
 mercado. O preco de refeicao vem com fonte (Numbeo serve, com data); o de mercado,
 se for estimado, diga que e. Apartamento: trivago com filtro `kitchen` e Airbnb.
+**O Airbnb nao atende a China continental** desde 30/07/2022 - busca vazia la e
+resposta, nao falha; use o trivago. No Airbnb, olhe o detalhe do preco: quando ele
+traz "Taxes" separado, a taxa turistica costuma estar dentro (em Lisboa, R$ 505,98
+para 3 pessoas e 7 noites bate com EUR 4 x 7 x 3), e a linha leva
+`"taxa_turistica": "inclusa"`; quando nao traz, deixe sem o campo e o
+`consolidar.py` soma a estimada.
 Em Pequim (30/10/2026) o albergue tinha a menor diaria e nao o menor total: o cafe
 fora come a diferenca.
 
